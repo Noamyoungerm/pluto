@@ -6,20 +6,20 @@ import numpy as np
 
 class ploadparticles(object):
 	def __init__(self, ns, w_dir=None, datatype=None, ptype=None, chnum=None):
-		"""
-		Loads the Particle datafile.
+	"""
+	Loads the Particle datafile.
 
-		**Inputs**:
-		ns 	-- Step Number of the data file\n
-		w_dir 	 -- path to the directory which has the data files\n
-		datatype -- Datatype (default is set to read .dbl data files)
-		ptype 	 -- A string denoting the type of particles ('LP', 'CR', 'DUST' etc. Default is 'CR')
-		chnum    -- 2 digit integer denoting chunk number
-		(Only used if ptype = 'LP' to read particles.nnnn_chxx.dbl file, where nnnn is 4 digit integer denotong ns and xx is a 2 digit integer for chunk number : Default value is 0)
-		
-		**Outputs**:
-		pyPLUTO pload object whose keys are arrays of data values.
-		"""
+	**Inputs**:
+	ns 	-- Step Number of the data file\n
+	w_dir 	 -- path to the directory which has the data files\n
+	datatype -- Datatype (default is set to read .dbl data files)
+	ptype 	 -- A string denoting the type of particles ('LP', 'CR', 'DUST' etc. Default is 'CR')
+	chnum    -- 2 digit integer denoting chunk number
+	(Only used if ptype = 'LP' to read particles.nnnn_chxx.dbl file, where nnnn is 4 digit integer denotong ns and xx is a 2 digit integer for chunk number : Default value is 0)
+	
+	**Outputs**:
+	pyPLUTO pload object whose keys are arrays of data values.
+	"""
 		self.Nstep = ns
 		if w_dir is None:
 			w_dir = os.getcwd() + '/'

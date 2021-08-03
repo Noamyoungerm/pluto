@@ -4,11 +4,11 @@ import scipy.ndimage
 from scipy.interpolate import interp1d, UnivariateSpline
 
 class Tools(object):
-	"""
-		This Class has all the functions doing basic mathematical
-		operations to the vector or scalar fields.
-		It is called after pyPLUTO.pload object is defined.
-	"""
+"""
+	This Class has all the functions doing basic mathematical
+	operations to the vector or scalar fields.
+	It is called after pyPLUTO.pload object is defined.
+"""
 	def find(self,condition):
 		res, = np.nonzero(np.ravel(condition))
 		return res
