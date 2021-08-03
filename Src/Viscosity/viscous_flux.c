@@ -119,7 +119,7 @@ simplify(div);
 
   \authors A. Mignone (mignone@to.infn.it) \n
            Petros Tzeferacos
-  \date    Aug 21, 2019
+  \date    Nov 25, 2020
 */
 /* ///////////////////////////////////////////////////////////////////// */
 #include "pluto.h"
@@ -212,7 +212,7 @@ void ViscousFlux (const Data *d, double **ViF, double **ViS,
   k = g_k;
 
   dxVx = dxVy = dxVz = 0.0;
-  dyVx = dyVy = dzVy = 0.0;
+  dyVx = dyVy = dyVz = 0.0;
   dzVx = dzVy = dzVz = 0.0;
   
   if (g_dir == IDIR){   

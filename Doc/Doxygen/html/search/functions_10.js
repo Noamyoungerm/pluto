@@ -21,7 +21,7 @@ var searchData=
   ['resistiveflux',['ResistiveFlux',['../res__flux_8c.html#aef1a202b25a9d576a7c18b84eabaaca9',1,'res_flux.c']]],
   ['resistiverhs',['ResistiveRHS',['../res__rhs_8c.html#afe002c348643a50b3c121cb86263182f',1,'res_rhs.c']]],
   ['restartdump',['RestartDump',['../restart_8c.html#a8cae56c31aa196eaaa993ef556a8de92',1,'restart.c']]],
-  ['restartfromfile',['RestartFromFile',['../restart_8c.html#af4bbd15bfa54aa3865c81d362c73e0b5',1,'restart.c']]],
+  ['restartfromfile',['RestartFromFile',['../restart_8c.html#ad96984a44e3dd8473d0f5545c65ad6fd',1,'restart.c']]],
   ['restartget',['RestartGet',['../restart_8c.html#aee58cbe6b6c03d5f9e3e56f1e2cc188e',1,'restart.c']]],
   ['rhd_5fenergysolve',['RHD_EnergySolve',['../_r_h_d_2mod__defs_8h.html#a1550e21bb1d5f31c99ab701dc8712f1f',1,'RHD_EnergySolve(double *, double *):&#160;rhd_energy_solve.c'],['../rhd__energy__solve_8c.html#a53f30302211415b08d8f478f78b4af00',1,'RHD_EnergySolve(double *u, double *v):&#160;rhd_energy_solve.c']]],
   ['rhd_5fentropysolve',['RHD_EntropySolve',['../_r_h_d_2mod__defs_8h.html#a307e77dabc3c327f34e5c37923ee7e1d',1,'RHD_EntropySolve(double *, double *):&#160;rhd_entropy_solve.c'],['../rhd__entropy__solve_8c.html#aa7de100793125c0a3030869999c9f623',1,'RHD_EntropySolve(double *u, double *v):&#160;rhd_entropy_solve.c']]],

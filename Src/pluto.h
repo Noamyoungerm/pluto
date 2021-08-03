@@ -7,13 +7,13 @@
   variable declarations used by the code.
 
   \author A. Mignone (mignone@to.infn.it)
-  \date   Nov 16, 2020
+  \date   Jun 02, 2021
 */
 /* ///////////////////////////////////////////////////////////////////// */
 #ifndef PLUTO_H
 #define PLUTO_H
 
-#define PLUTO_VERSION  "4.4"
+#define PLUTO_VERSION  "4.4-patch2"
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -65,6 +65,8 @@
 #define SSP_RK4                    8
 #define EXP_MIDPOINT               9  /* -- Used for dust time stepping -- */
 #define SEMI_IMPLICIT             10  /* -- Used for dust time stepping -- */
+#define RK_MIDPOINT               11
+#define RK4                       12
 
 #define EXPLICIT             1 /* -- just a number different from 0 !!!  -- */
 #define SUPER_TIME_STEPPING  2 /* -- just a number different from EXPLICIT -- */ 
@@ -177,10 +179,10 @@
 
 /*! \name Bit flag labels.
     The following macros define the bits that can be turned on or off
-    in an unsigned char (= 1 byte = 8 bits) variable. 
+    in an uint16_t (2 bytes integer, 1 byte = 8 bits) variable. 
     Different bit flags allow to enable or disable certain actions in 
     a given cell at different points in the code, see also flag.c.
-    The 3D unsigned char \c ***flag array is used for bookeeping, in each zone 
+    The 3D, 16-bit \c ***flag array is used for bookeeping, in each zone 
     (i,j,k), which bits are actually switched on or off.
     A simple bitwise operation is used to enable a flag, e.g., 
     <tt> flag[k][j][i] |= FLAG_XXX </tt>.
@@ -192,16 +194,26 @@
     Individual bits can also be turned off, e.g., <tt> flag &= ~FLAG_XXX; </tt>
 */
 /**@{ */
-#define FLAG_MINMOD      1  /**< Reconstruct using MINMOD limiter. */
-#define FLAG_FLAT        2  /**< Reconstruct using FLAT limiter.   */
-#define FLAG_HLL         4  /**< Switch to HLL Riemann solver. */
-#define FLAG_ENTROPY     8  /**< Update pressure using entropy equation. */
-#define FLAG_SPLIT_CELL  16 /**< Zone is covered by a finer level (AMR only). */
+#define FLAG_MINMOD               1  /**< Reconstruct using MINMOD limiter. */
+#define FLAG_FLAT                 2  /**< Reconstruct using FLAT limiter.   */
+#define FLAG_HLL                  4  /**< Switch to HLL Riemann solver. */
+#define FLAG_ENTROPY              8  /**< Update pressure using entropy equation. */
+#define FLAG_SPLIT_CELL          16  /**< Zone is covered by a finer level
+                                         (AMR only). */
 #define FLAG_INTERNAL_BOUNDARY   32  /**< Zone belongs to an internal boundary
                                           region and should be excluded from 
                                           being updated in time              */
 #define FLAG_CONS2PRIM_FAIL      64    
-#define FLAG_BIT8               128  
+#define FLAG_NEGATIVE_PRESSURE  128 /**< A negative pressure has been found */  
+#define FLAG_NEGATIVE_ENERGY    256 /**< A negative energy   has been found  */  
+#define FLAG_NEGATIVE_DENSITY   512 /**< A negative density  has been found  */  
+#define FLAG_BIT_11            1024 /**< Free bit */  
+#define FLAG_BIT_12            2048 /**< Free bit */  
+#define FLAG_BIT_13            4096 /**< Free bit */  
+#define FLAG_BIT_14            8192 /**< Free bit */  
+#define FLAG_BIT_15           16384 /**< Free bit */  
+#define FLAG_GCA_FAILURE      32768 /**< Singularity in the GCA because of
+                                         E_\perp > B (incomplete stencil error) */  
 /**@} */
 
 #define IDIR     0     /*   This sequence (0,1,2) should */
@@ -365,12 +377,20 @@
  #define DUST_FLUID   NO
 #endif
 
+#ifndef ENABLE_HLLEM
+ #define ENABLE_HLLEM  NO
+#endif
+
 #ifndef ENTROPY_SWITCH
  #define ENTROPY_SWITCH  NO
 #endif 
 
 #ifndef EOS
  #define EOS  -1
+#endif
+
+#ifndef FAILSAFE
+ #define FAILSAFE   NO
 #endif
 
 #ifndef HALL_MHD
@@ -396,6 +416,11 @@
 
 #ifndef MULTIPLE_LOG_FILES
  #define MULTIPLE_LOG_FILES   NO
+#endif
+
+#ifndef NGHOST_USR
+  #define NGHOST_USR          -1  /**< When positive, it specifes a
+                                       user-provided number of ghost zones. */
 #endif
 
 #ifndef RECONSTRUCT_4VEL
@@ -800,6 +825,7 @@ typedef double ****Data_Arr;
  extern int SZ_stagy;
  extern int SZ_stagz;
  extern int SZ_char;
+ extern int SZ_uint16_t;
  extern int SZ_float;
  extern int SZ_Float_Vect;
  extern int SZ_rgb;

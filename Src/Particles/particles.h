@@ -9,7 +9,8 @@
   \author A. Mignone (mignone@to.infn.it)\n
           B. Vaidya
 	  D. Mukherjee
-  \date   Nov 11, 2020
+
+  \date   March 19, 2021
 */
 /* ///////////////////////////////////////////////////////////////////// */
 
@@ -61,9 +62,23 @@
 
 #if PARTICLES == PARTICLES_CR
 
-/*! Set GUIDING_CENTER to NO by defualt. */ 
-  #ifndef GUIDING_CENTER
-    #define GUIDING_CENTER  NO
+/*! Set Guiding center approx to NO by default. */ 
+  #ifndef PARTICLES_CR_GC
+    #define PARTICLES_CR_GC  NO
+  #endif
+
+  #if PARTICLES_CR_GC == YES
+
+    #ifndef  PARTICLES_CR_GC_INTEGRATOR
+      #define  PARTICLES_CR_GC_INTEGRATOR   RK_MIDPOINT
+    #endif
+    #ifndef  PARTICLES_CR_GC_4VEL
+      #define PARTICLES_CR_GC_4VEL   YES
+    #endif
+    #ifndef  PARTICLES_CR_GC_DEBUG
+      #define PARTICLES_CR_GC_DEBUG   NO
+    #endif
+
   #endif
 
 /*! Sets the artificial value of the speed of light */
@@ -119,7 +134,11 @@
 /*! Max number of particles time steps per hydro step. When set to a
     negative integer, force sub-stepping to be  the same [CR particles]. */
   #ifndef PARTICLES_CR_NSUB
-    #define PARTICLES_CR_NSUB      5   
+    #if PARTICLES_CR_GC == YES
+      #define PARTICLES_CR_NSUB      1 
+    #else
+      #define PARTICLES_CR_NSUB      5
+    #endif
   #endif
 
 /*! Predictor step in mover. This makes the scheme 2nd order [CR particles]. */ 
@@ -383,6 +402,7 @@ void    Particles_Init(Data *, Grid *);
 void    Particles_Inject(Data *d, Grid *grid);
 int     Particles_Insert(Particle *, Data *, char, Grid *);
 double  Particles_Interpolate(double ***, double ***, int *);
+void    Particles_InterpolateArr(Data_Arr, int, double ***, int *, double *);
 
 void    Particles_ListToArray (Data *d);
 

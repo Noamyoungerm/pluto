@@ -15,8 +15,8 @@
   In the following "local" means "for the local processor".
   "Interior" means inside the computational domain.
 
-  \author A. Mignone (mignone@ph.unito.it)
-  \date   Sep 16, 2012
+  \author A. Mignone (mignone@to.infn.it)
+  \date   Dec 02, 2020
 */
 /* ///////////////////////////////////////////////////////////////////// */
 
@@ -26,6 +26,7 @@
  int SZ_stagz;
  int SZ_float;
  int SZ_char;
+ int SZ_uint16_t;
  int SZ_Float_Vect;
  int SZ_rgb;
  int SZ_short;

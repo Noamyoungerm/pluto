@@ -43,8 +43,8 @@ void GetNeighbourRanks (Grid *grid, int **nranks)
   /* -- Obtain local processor coordinates -- */
 
     DIM_EXPAND(coords[IDIR] = grid->rank_coord[IDIR];  ,
-             coords[JDIR] = grid->rank_coord[JDIR];  ,
-             coords[KDIR] = grid->rank_coord[KDIR];)
+              coords[JDIR] = grid->rank_coord[JDIR];  ,
+              coords[KDIR] = grid->rank_coord[KDIR];)
 
     nranks[dir][0] = nranks[dir][1] = -1;
 
@@ -131,20 +131,14 @@ void GnuplotSetting(Runtime *runtime, Grid *grid)
   if (dbl_out){
     fprintf (fp, "if (!exists('dtype')) {\n");
     fprintf (fp,"  dtype = 'dbl' # Default data type\n");
-    fprintf (fp,"  print 'Setting data type to dbl'\n");
     fprintf (fp,"}\n");
   }else if (flt_out){
     fprintf (fp, "if (!exists('dtype')) {\n");
     fprintf (fp,"  dtype = 'flt' # Default data type\n");
-    fprintf (fp,"  print 'Setting data type to flt'\n");
     fprintf (fp,"}\n");
   }
-
-  fprintf (fp, "if (!exists('nvar')) {\n");
-  fprintf (fp, "  nvar = 0\n");
-  fprintf (fp, "  print 'nvar = ',nvar\n");
-  fprintf (fp, "}\n");
-
+  fprintf (fp,"print '> dtype set to ',dtype\n");
+ 
 /* --------------------------------------------------------
    2b. Set grid size
    -------------------------------------------------------- */
@@ -210,6 +204,11 @@ void GnuplotSetting(Runtime *runtime, Grid *grid)
     fprintf (fp, "}\n");
   }
   
+  fprintf (fp, "if (!exists('nvar')) {\n");
+  fprintf (fp, "  nvar = 0\n");
+  fprintf (fp, "  print '> nvar = ',nvar\n");
+  fprintf (fp, "}\n");
+
 /* --------------------------------------------------------
    3. Make gnuplot count the number of lines in "flt.out"
       and "dbl.out"
@@ -303,7 +302,7 @@ void MakeState (Sweep *sweep)
 /* -- eigenvectors -- */
 
   sweep->lmax    = ARRAY_1D(NVAR, double);
-  sweep->flag    = ARRAY_1D(NMAX_POINT, unsigned char);
+  sweep->flag    = ARRAY_1D(NMAX_POINT, uint16_t);
 
 /* --------------------------------------------------------
    1. Allocate memory for state structure members.

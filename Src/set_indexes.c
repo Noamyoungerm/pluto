@@ -46,7 +46,7 @@ void SetVectorIndices (int dir)
     #endif
 
     #if RADIATION
-	  FRn = FR1;  
+    FRn = FR1;  
     FRt = FR2; 
     FRb = FR3;
     #endif
@@ -67,6 +67,7 @@ void SetVectorIndices (int dir)
     EXt = EX3;
     EXb = EX1;
     #endif
+
     #if DUST_FLUID == YES
     VXn_D = MXn_D = VX2_D;
     VXt_D = MXt_D = VX3_D;
@@ -74,7 +75,7 @@ void SetVectorIndices (int dir)
     #endif
 
     #if RADIATION
-	  FRn = FR2; 
+    FRn = FR2; 
     FRt = FR3;  
     FRb = FR1;
     #endif
@@ -89,18 +90,21 @@ void SetVectorIndices (int dir)
     BXt = BX1;
     BXb = BX2;
     #endif
+
     #if PHYSICS == ResRMHD
     EXn = EX3;
     EXt = EX1;
     EXb = EX2;
     #endif
+
     #if DUST_FLUID == YES
     VXn_D = MXn_D = VX3_D;
     VXt_D = MXt_D = VX1_D;
     VXb_D = MXb_D = VX2_D;
     #endif
+
     #if RADIATION
-	  FRn = FR3; 
+    FRn = FR3; 
     FRt = FR1; 
     FRb = FR2;
     #endif

@@ -25,7 +25,7 @@ void GFORCE_Solver (const Sweep *sweep, int beg, int end,
  *********************************************************************** */
 {
   int    nv, i;
-  static unsigned char *flag;
+  static uint16_t *flag;
 
   const State   *stateL = &(sweep->stateL);
   const State   *stateR = &(sweep->stateR);
@@ -51,7 +51,7 @@ void GFORCE_Solver (const Sweep *sweep, int beg, int end,
 
   if (fluxLF == NULL){
     fluxLF = ARRAY_2D(NMAX_POINT, NVAR, double);
-    flag = ARRAY_1D(NMAX_POINT, unsigned char);
+    flag   = ARRAY_1D(NMAX_POINT, uint16_t);
 
     StateStructAllocate(&stateLW);
 

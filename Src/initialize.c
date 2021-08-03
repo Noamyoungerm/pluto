@@ -27,7 +27,7 @@
 
   \author A. Mignone (mignone@to.infn.it)
           B. Vaidya
-  \date   Apr 07, 2020
+  \date   Dec 02 2020
 */
 /* ///////////////////////////////////////////////////////////////////// */
 #include "pluto.h"
@@ -149,6 +149,23 @@ void Initialize(Data *data, Runtime *runtime, Grid *grid, cmdLine *cmd_line)
   AL_Get_lbounds (SZ_float, lbeg, lend, ghosts, AL_C_INDEXES);
   AL_Get_gbounds (SZ_float, gbeg, gend, ghosts, AL_C_INDEXES);
   AL_Is_boundary (SZ_float, is_gbeg, is_gend);
+
+/* ---- uint16_t distributed array descriptor ---- */
+
+  AL_Sz_init (MPI_COMM_WORLD, &SZ_uint16_t);
+  AL_Set_type (MPI_UINT16_T, 1, SZ_uint16_t);
+  AL_Set_dimensions (DIMENSIONS, SZ_uint16_t);
+  AL_Set_global_dim (gsize, SZ_uint16_t);
+  AL_Set_ghosts (ghosts, SZ_uint16_t);
+  AL_Set_periodic_dim (periods, SZ_uint16_t);
+  AL_Set_parallel_dim (pardim, SZ_uint16_t);
+
+  AL_Decompose (SZ_uint16_t, procs, decomp_mode);
+  AL_Get_local_dim (SZ_uint16_t, lsize);
+  AL_Get_bounds  (SZ_uint16_t, beg, end, ghosts, AL_C_INDEXES);
+  AL_Get_lbounds (SZ_uint16_t, lbeg, lend, ghosts, AL_C_INDEXES);
+  AL_Get_gbounds (SZ_uint16_t, gbeg, gend, ghosts, AL_C_INDEXES);
+  AL_Is_boundary (SZ_uint16_t, is_gbeg, is_gend);
 
 /* ---- char distributed array descriptor ---- */
 
@@ -487,7 +504,7 @@ void Initialize(Data *data, Runtime *runtime, Grid *grid, cmdLine *cmd_line)
   #endif
 #endif
 
-  data->flag = ARRAY_3D(NX3_TOT, NX2_TOT, NX1_TOT, unsigned char);
+  data->flag = ARRAY_3D(NX3_TOT, NX2_TOT, NX1_TOT, uint16_t);
 
 /* ----------------------------------------------
    7b. Riemann solver pointer

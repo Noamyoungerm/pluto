@@ -25,7 +25,7 @@
 	iterated fields is controlled. 
   
   \authors J. D. Melon Fuksman (fuksman@mpia.de)
-  \date    Dec 12, 2019
+  \date    Dec 03, 2020
   
 	\b References
 	 -  Melon Fuksman, J. D., and Mignone, A. 2019, "A Radiative
@@ -39,8 +39,9 @@
 
 #include "pluto.h"
 #if RADIATION
+/* ********************************************************************* */
 void RadStep (double **uprim, double **ucons, double **source,
-              int ibeg, int iend,	unsigned char *flag, double dt)
+              int ibeg, int iend, uint16_t *flag, double dt)
 /*!
  * Perform the implicit step along a direction determined during RadStep3D.
  * Update both primitive and conserved quantities. Primitive and conserved
@@ -268,10 +269,9 @@ void RadStep (double **uprim, double **ucons, double **source,
   #endif
 }
 
-
 /* ********************************************************************* */
 void RadStep3D (Data_Arr U, Data_Arr V, Data_Arr S,
-                unsigned char ***flag, RBox *box, double dt)
+                uint16_t ***flag, RBox *box, double dt)
 /*!
  *  Perform the implicit step for the matter-radiation interaction.
  *  Update both conserved and primitive variables. 

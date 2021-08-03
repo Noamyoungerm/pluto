@@ -10,5 +10,5 @@ var searchData=
   ['update_5fstage_2ec',['update_stage.c',['../update__stage_8c.html',1,'']]],
   ['updatestage',['UpdateStage',['../update__stage_8c.html#aa205c9eb6823fdfbbabc967f16e13076',1,'update_stage.c']]],
   ['user_5fvar',['user_var',['../struct_runtime.html#a7ffd0b2c34c7281d1f7537c21e8c205f',1,'Runtime']]],
-  ['userdefboundary',['UserDefBoundary',['../init_8c.html#a871556305428fad692c67884bcb270bd',1,'init.c']]]
+  ['userdefboundary',['UserDefBoundary',['../_dust___fluid_2init_8c.html#a871556305428fad692c67884bcb270bd',1,'UserDefBoundary(const Data *d, RBox *box, int side, Grid *grid):&#160;init.c'],['../_templates_2init_8c.html#a871556305428fad692c67884bcb270bd',1,'UserDefBoundary(const Data *d, RBox *box, int side, Grid *grid):&#160;init.c']]]
 ];

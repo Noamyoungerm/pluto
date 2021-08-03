@@ -13,8 +13,7 @@ var searchData=
   ['meanmolecularweight',['MeanMolecularWeight',['../mean__mol__weight_8c.html#a29988943ac39ad7160dcd08944a6b83b',1,'mean_mol_weight.c']]],
   ['monotonesplinecoeffs',['MonotoneSplineCoeffs',['../math__interp_8c.html#a8cb208d0342aec6cd0c574a5b7097738',1,'math_interp.c']]],
   ['mp5_5freconstruct',['MP5_Reconstruct',['../reconstruct_8c.html#af32edbf9e222b025c5b3850d83a0fe04',1,'reconstruct.c']]],
-  ['mp5_5fstates',['MP5_States',['../mp5__states_8c.html#a33dcea986fbfd8f221b612636794e417',1,'mp5_states.c']]],
-  ['mp5_5fstates2',['MP5_States2',['../mp5__states_8c.html#a8bb2d5961f6bf8b319248b6fd1bb2b35',1,'mp5_states.c']]],
+  ['mp5_5fstates',['MP5_States',['../mp5__states_8c.html#aa0b2a9f866704fcff5031dab0bf0a90c',1,'mp5_states.c']]],
   ['multigridpoisson',['MultiGridPoisson',['../multigrid_8c.html#a40ecec0b16d967a82e4fe0facb1c90ae',1,'multigrid.c']]],
   ['myfunctiontemplate',['MyFunctionTemplate',['../doxy-comment_8c.html#a2130c37d6ecd9d4eeda7f907cb6274a9',1,'doxy-comment.c']]]
 ];

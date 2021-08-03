@@ -9,13 +9,13 @@
 
   \authors A. Mignone (mignone@to.infn.it)\n
 
-  \date    Jul 19, 2020
+  \date    Dec 09, 2020
 */
 /* ///////////////////////////////////////////////////////////////////// */
 #include "pluto.h"
 
 /* ********************************************************************* */
-void ArrayReconstruct(double ***Q, char *flag, int i, int j, int k, int dir,
+void ArrayReconstruct(double ***Q, uint16_t *flag, int i, int j, int k, int dir,
                       double *qL, double *qR, int rec, Grid *grid)
 /*!
  *********************************************************************** */
@@ -24,26 +24,25 @@ void ArrayReconstruct(double ***Q, char *flag, int i, int j, int k, int dir,
   PLM_Coeffs plm_coeffs;
   int rec0 = (rec/10)*10;
   int ntot;
-  static double *qfwd, *qbck;
+  static double *q;
 
-  if (qfwd == NULL){
-    qfwd = ARRAY_1D(NMAX_POINT, double);
-    qbck = ARRAY_1D(NMAX_POINT, double); 
+  if (q == NULL){
+    q = ARRAY_1D(NMAX_POINT, double);
   }
 
   if (dir == IDIR) {
     ntot = NX1_TOT;
-    for (i = 0; i < ntot; i++) qfwd[i] = Q[k][j][i];
+    for (i = 0; i < ntot; i++) q[i] = Q[k][j][i];
   } 
  
   if (dir == JDIR) {
     ntot = NX2_TOT;
-    for (j = 0; j < ntot; j++) qfwd[j] = Q[k][j][i];
+    for (j = 0; j < ntot; j++) q[j] = Q[k][j][i];
   }
 
   if (dir == KDIR) {
     ntot = NX3_TOT;
-    for (k = 0; k < ntot; k++) qfwd[k] = Q[k][j][i];
+    for (k = 0; k < ntot; k++) q[k] = Q[k][j][i];
   }
 
 /* ----------------------------------------------
@@ -51,11 +50,10 @@ void ArrayReconstruct(double ***Q, char *flag, int i, int j, int k, int dir,
    ---------------------------------------------- */
   
   if (rec0 == FLAT) {
-    int n;
-    dqm = qfwd[1] - qfwd[0];
-    for (n = 1; n < ntot-1; n++){      
-      qL[n]   = qfwd[n];
-      qR[n-1] = qfwd[n];
+    dqm = q[1] - q[0];
+    for (i = 1; i < ntot-1; i++){
+      qL[i]   = q[i];
+      qR[i-1] = q[i];
     }
     return;
   }
@@ -65,12 +63,18 @@ void ArrayReconstruct(double ***Q, char *flag, int i, int j, int k, int dir,
    ---------------------------------------------- */
   
   if (rec0 == LINEAR) {
-    int n;
-    dqm = qfwd[1] - qfwd[0];
-    for (n = 1; n < ntot-1; n++){
+    dqm = q[1] - q[0];
+    for (i = 1; i < ntot-1; i++){
+
+      #if SHOCK_FLATTENING == MULTID
+      if (flag[i] & FLAG_FLAT) {
+        qL[i]   = qR[i-1] = q[i];
+        continue;
+      }
+      #endif
       
-      dqp = qfwd[n+1] - qfwd[n];
-      dqm = qfwd[n] - qfwd[n-1];
+      dqp = q[i+1] - q[i];
+      dqm = q[i]   - q[i-1];
 
       if      (rec == FLAT_LIM)    dq = 0.0;
       else if (rec == MINMOD_LIM)  dq = MINMOD_LIMITER(dqp, dqm);
@@ -79,8 +83,8 @@ void ArrayReconstruct(double ***Q, char *flag, int i, int j, int k, int dir,
       else{
         SET_LIMITER (dq, dqp, dqm, 2.0, 2.0);
       }
-      qL[n]   = qfwd[n] + 0.5*dq;
-      qR[n-1] = qfwd[n] - 0.5*dq;
+      qL[i]   = q[i] + 0.5*dq;
+      qR[i-1] = q[i] - 0.5*dq;
       
     }
     return;
@@ -91,49 +95,49 @@ void ArrayReconstruct(double ***Q, char *flag, int i, int j, int k, int dir,
    ---------------------------------------------- */
 
   if (rec == PARABOLIC) {
-    for (i = 0; i < ntot; i++) qbck[i] = qfwd[ntot-i-1];
-
     int beg = 1, end = ntot-2;
     for (i = beg; i <= end; i++){
  
-      double *v = qfwd;
-      double dv, dvp, dvm;
-      double dvc, Sm1, Sp1, Sp2, SM;
-      double ap, am, vp, vm;
+      double dqc, Sm1, Sp1, Sp2, SM;
+      double ap, am, qp, qm;
 
       #if SHOCK_FLATTENING == MULTID
-      if (flag[i] & FLAG_MINMOD) {
-        dqp = v[i+1] - v[i];
-        dqm = v[i] - v[i-1];
+      if (flag[i] & FLAG_FLAT) {
+        qL[i]   = q[i];
+        qR[i-1] = q[i];
+        continue;
+      }else if (flag[i] & FLAG_MINMOD) {
+        dqp = q[i+1] - q[i];
+        dqm = q[i] - q[i-1];
         dq = MINMOD_LIMITER(dqp, dqm);
-        qL[i]   = v[i] + 0.5*dq;
-        qR[i-1] = v[i] - 0.5*dq;
+        qL[i]   = q[i] + 0.5*dq;
+        qR[i-1] = q[i] - 0.5*dq;
         continue;
       }
       #endif
   
-      vp = (    -v[i-1] + 5.0*v[i] + 2.0*v[i+1])/6.0;
-      vm = ( 2.0*v[i-1] + 5.0*v[i] -     v[i+1])/6.0;
+      qp = (    -q[i-1] + 5.0*q[i] + 2.0*q[i+1])/6.0;
+      qm = ( 2.0*q[i-1] + 5.0*q[i] -     q[i+1])/6.0;
       
-      dvp = vp - v[i];
-      dvm = vm - v[i];
+      dqp = qp - q[i];
+      dqm = qm - q[i];
   
-      dv  = v[i+1] - v[i];
-      vp  = v[i] + MINMOD_LIMITER(dvp, dv);
+      dq  = q[i+1] - q[i];
+      qp  = q[i] + MINMOD_LIMITER(dqp, dq);
       
-      dv  = v[i] - v[i-1];
-      vm  = v[i] + MINMOD_LIMITER(dvm, -dv);
+      dq  = q[i] - q[i-1];
+      qm  = q[i] + MINMOD_LIMITER(dqm, -dq);
        
-      dvp = vp - v[i];
-      dvm = vm - v[i];
+      dqp = qp - q[i];
+      dqm = qm - q[i];
   
-      if (dvp*dvm >= 0.0) dvp = dvm = 0.0;
+      if (dqp*dqm >= 0.0) dqp = dqm = 0.0;
       else{
-        if      (fabs(dvp) >= 2.0*fabs(dvm)) dvp = -2.0*dvm;
-        else if (fabs(dvm) >= 2.0*fabs(dvp)) dvm = -2.0*dvp;
+        if      (fabs(dqp) >= 2.0*fabs(dqm)) dqp = -2.0*dqm;
+        else if (fabs(dqm) >= 2.0*fabs(dqp)) dqm = -2.0*dqp;
       }
-      qL[i]   = vp = v[i] + dvp; 
-      qR[i-1] = vm = v[i] + dvm;
+      qL[i]   = qp = q[i] + dqp; 
+      qR[i-1] = qm = q[i] + dqm;
   
     }
     return;
@@ -145,6 +149,10 @@ void ArrayReconstruct(double ***Q, char *flag, int i, int j, int k, int dir,
 
   if (rec == WENO3) {
 
+    double *qfwd = q;
+    static double *qbck;
+    if (qbck == NULL) qbck = ARRAY_1D(NMAX_POINT, double);
+
     for (i = 0; i < ntot; i++) qbck[i] = qfwd[ntot-i-1];
   
     int beg = 1, end = ntot-2;
@@ -152,7 +160,11 @@ void ArrayReconstruct(double ***Q, char *flag, int i, int j, int k, int dir,
       int ip = i;
       int im = end-(i-beg);
       #if SHOCK_FLATTENING == MULTID
-      if (flag[i] & FLAG_MINMOD) {
+      if (flag[i] & FLAG_FLAT) {
+        qL[i]   = qfwd[i];
+        qR[i-1] = qfwd[i];
+        continue;
+      }else if (flag[i] & FLAG_MINMOD) {
         dqp = qfwd[i+1] - qfwd[i];
         dqm = qfwd[i] - qfwd[i-1];
         dq = MINMOD_LIMITER(dqp, dqm);
@@ -178,18 +190,22 @@ void ArrayReconstruct(double ***Q, char *flag, int i, int j, int k, int dir,
     int beg = 2, end = ntot-3;
     for (i = beg; i <= end; i++){
       #if SHOCK_FLATTENING == MULTID
-      if (flag[i] & FLAG_MINMOD) {
-        dqp = qfwd[i+1] - qfwd[i];
-        dqm = qfwd[i] - qfwd[i-1];
+      if (flag[i] & FLAG_FLAT) {
+        qL[i]   = q[i];
+        qR[i-1] = q[i];
+        continue;
+      }else if (flag[i] & FLAG_MINMOD) {
+        dqp = q[i+1] - q[i];
+        dqm = q[i] - q[i-1];
         dq = MINMOD_LIMITER(dqp, dqm);
-        qL[i]   = qfwd[i] + 0.5*dq;
-        qR[i-1] = qfwd[i] - 0.5*dq;
+        qL[i]   = q[i] + 0.5*dq;
+        qR[i-1] = q[i] - 0.5*dq;
         continue;
       }
       #endif
 
-      qL[i]   = WENOZ_States (qfwd, i, +1);
-      qR[i-1] = WENOZ_States (qfwd, i, -1);
+      qL[i]   = WENOZ_States (q, i, +1);
+      qR[i-1] = WENOZ_States (q, i, -1);
     }
     return;
   }
@@ -205,18 +221,22 @@ void ArrayReconstruct(double ***Q, char *flag, int i, int j, int k, int dir,
     int beg = 2, end = ntot-3;
     for (i = beg; i <= end; i++){
       #if SHOCK_FLATTENING == MULTID
-      if (flag[i] & FLAG_MINMOD) {
-        dqp = qfwd[i+1] - qfwd[i];
-        dqm = qfwd[i] - qfwd[i-1];
+      if (flag[i] & FLAG_FLAT) {
+        qL[i]   = q[i];
+        qR[i-1] = q[i];
+        continue;
+      }else if (flag[i] & FLAG_MINMOD) {
+        dqp = q[i+1] - q[i];
+        dqm = q[i] - q[i-1];
         dq = MINMOD_LIMITER(dqp, dqm);
-        qL[i]   = qfwd[i] + 0.5*dq;
-        qR[i-1] = qfwd[i] - 0.5*dq;
+        qL[i]   = q[i] + 0.5*dq;
+        qR[i-1] = q[i] - 0.5*dq;
         continue;
       }
       #endif
 
-      qL[i]   = MP5_States (qfwd, i, +1);
-      qR[i-1] = MP5_States (qfwd, i, -1);
+      qL[i]   = MP5_States (q, i, +1);
+      qR[i-1] = MP5_States (q, i, -1);
     }
     return;
   }

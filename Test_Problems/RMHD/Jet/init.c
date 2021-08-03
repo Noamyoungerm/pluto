@@ -100,7 +100,7 @@ void Init (double *v, double x1, double x2, double x3)
   v[VX3] = 0.0;
   v[PRS] = pj;
 #if PHYSICS == RMHD
-  #if GEOMETRY == CYLINDRICAL
+  #if (GEOMETRY == CARTESIAN) || (GEOMETRY == CYLINDRICAL)
   v[BX1] = 0.0;
   v[BX2] = vjet[BX2];  
   v[BX3] = 0.0;
@@ -175,7 +175,7 @@ void UserDefBoundary (const Data *d, RBox *box, int side, Grid *grid)
   x2  = grid->xgc[JDIR];  
   x3  = grid->xgc[KDIR];
 
-#if GEOMETRY == CYLINDRICAL
+#if (GEOMETRY == CYLINDRICAL) || (GEOMETRY == CARTESIAN)
   if (side == X2_BEG){  /* -- X2_BEG boundary -- */
     if (box->vpos == CENTER){    /* -- cell-centered boundary conditions -- */
       BOX_LOOP(box,k,j,i){
@@ -279,7 +279,7 @@ void GetJetValues (double x1, double x2, double x3, double *vj)
 
   bphi  = bm*(fabs(x) < 1.0 ? x: 1.0/x);
 
-  #if GEOMETRY == CYLINDRICAL
+  #if (GEOMETRY == CYLINDRICAL) || (GEOMETRY == CARTESIAN)
   vj[BX1] = 0.0;     
   vj[BX2] = sqrt(sig_z*(bm*bm*a*a + 2.0*pj)); 
   vj[BX3] = lor*bphi;

@@ -6,7 +6,7 @@
   \b References
   
   \author A. Mignone (mignone@to.infn.it)
-  \date   Sep 02, 2020
+  \date   Dec 09, 2020
 */
 /* ///////////////////////////////////////////////////////////////////// */
 #include "pluto.h"
@@ -52,20 +52,20 @@ void CT_IMEXImplicitUpdate(Data *d, Data_Arr J, double dt1, Grid *grid)
              double ***Ex2s = d->Vs[EX2s];  ,
              double ***Ex3s = d->Vs[EX3s];)
 
-  static char   *flag;
+  static uint16_t  *flag;
   static double ***ux1, ***ux2, ***ux3, ***Eu;
   static double **vL, **vR;
 
   if (Eu == NULL){
-    ux1 = ARRAY_3D(NX3_TOT, NX2_TOT, NX1_TOT, double);
-    ux2 = ARRAY_3D(NX3_TOT, NX2_TOT, NX1_TOT, double);
-    ux3 = ARRAY_3D(NX3_TOT, NX2_TOT, NX1_TOT, double);
+    ux1  = ARRAY_3D(NX3_TOT, NX2_TOT, NX1_TOT, double);
+    ux2  = ARRAY_3D(NX3_TOT, NX2_TOT, NX1_TOT, double);
+    ux3  = ARRAY_3D(NX3_TOT, NX2_TOT, NX1_TOT, double);
 
-    Eu  = ARRAY_3D(NX3_TOT, NX2_TOT, NX1_TOT, double);
+    Eu   = ARRAY_3D(NX3_TOT, NX2_TOT, NX1_TOT, double);
 
-    vL = ARRAY_2D(NVAR, NMAX_POINT, double);
-    vR = ARRAY_2D(NVAR, NMAX_POINT, double);
-    flag = ARRAY_1D(NMAX_POINT, char);
+    vL   = ARRAY_2D(NVAR, NMAX_POINT, double);
+    vR   = ARRAY_2D(NVAR, NMAX_POINT, double);
+    flag = ARRAY_1D(NMAX_POINT, uint16_t);
   }
 
 /* -- Compute four-velocity (interpolation is done on u, not on v) -- */

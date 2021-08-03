@@ -63,7 +63,6 @@
 extern double glm_ch; /**< The propagation speed of divergence error. */
     
 void  GLM_Solve (const Sweep *, int, int, Grid *);
-void  GLM_SolveNEW (const Sweep *sweep, int beg, int end, Grid *grid);
 void  GLM_Init      (const Data *, const timeStep *, Grid *);
 void  GLM_Source (const Data *, double, Grid *);
 void  GLM_ExtendedSource (const Sweep *, double, int, int, Grid *);

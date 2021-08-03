@@ -540,25 +540,25 @@ double ***ArrayMap(int nx, int ny, int nz, double *uptr)
 }
 
 /* ********************************************************************* */
-unsigned char ***ArrayCharMap(int nx, int ny, int nz, unsigned char *uptr)
+uint16_t ***ArrayUint16_tMap(int nx, int ny, int nz, uint16_t *uptr)
 /* ********************************************************************* */
 {
   int i,j;
-  unsigned char ***t;
+  uint16_t ***t;
 
 /* -- allocate pointers to pointers to rows -- */
 
-  t = (unsigned char ***) malloc((size_t)((nx)*sizeof(unsigned char**)));
+  t = (uint16_t ***) malloc((size_t)((nx)*sizeof(uint16_t**)));
   if (!t) {
-    printLog ("! ArrayCharMap: allocation failure (1) \n");
+    printLog ("! ArrayUint16_tMap: allocation failure (1) \n");
     QUIT_PLUTO (1);
   }
 
 /* -- allocate pointers to rows and set pointers to them -- */
 
-  t[0] = (unsigned char **) malloc((size_t)((nx*ny)*sizeof(unsigned char*)));
+  t[0] = (uint16_t **) malloc((size_t)((nx*ny)*sizeof(uint16_t*)));
   if (!t[0]) {
-    printLog ("! ArrayCharMap: allocation failure (2) \n");
+    printLog ("! ArrayUint16_tMap: allocation failure (2) \n");
     QUIT_PLUTO(1);
   }
 
@@ -566,7 +566,7 @@ unsigned char ***ArrayCharMap(int nx, int ny, int nz, unsigned char *uptr)
 
   t[0][0] = uptr;
   if (!t[0][0]) {
-    printLog ("! ArrayCharMap: allocation failure (3) \n");
+    printLog ("! ArrayUint16_tMap: allocation failure (3) \n");
     QUIT_PLUTO (1);
   }
 
@@ -598,7 +598,7 @@ void FreeArrayMap(double ***t)
 }
 
 /* ********************************************************************* */
-void FreeArrayCharMap(unsigned char ***t)
+void FreeArrayUint16_tMap(uint16_t ***t)
 {
   free((char*) t[0]);
   free((char*) t);

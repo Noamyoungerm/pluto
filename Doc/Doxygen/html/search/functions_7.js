@@ -17,5 +17,6 @@ var searchData=
   ['hlld_5fgetcstate',['HLLD_GetCState',['../_r_m_h_d_2hlld_8c.html#af786f83865afe8f83434bdfc4be9de1e',1,'hlld.c']]],
   ['hlld_5fgetriemannstate',['HLLD_GetRiemannState',['../_r_m_h_d_2hlld_8c.html#a38c9099d9adf7ba9fb6ac0aeb4111ec7',1,'hlld.c']]],
   ['hlld_5fsolver',['HLLD_Solver',['../_m_h_d_2hlld_8c.html#a47a8218de8d2d11f4ec6f87cf3df65a2',1,'HLLD_Solver(const Sweep *sweep, int beg, int end, double *cmax, Grid *grid):&#160;hlld.c'],['../hlld__arithm_8c.html#a47a8218de8d2d11f4ec6f87cf3df65a2',1,'HLLD_Solver(const Sweep *sweep, int beg, int end, double *cmax, Grid *grid):&#160;hlld_arithm.c'],['../_r_m_h_d_2hlld_8c.html#a47a8218de8d2d11f4ec6f87cf3df65a2',1,'HLLD_Solver(const Sweep *sweep, int beg, int end, double *cmax, Grid *grid):&#160;hlld.c']]],
-  ['hlld_5ftotalpressure',['HLLD_TotalPressure',['../_r_m_h_d_2hlld_8c.html#a18d654bf7e9375af013f6d876a909a3d',1,'hlld.c']]]
+  ['hlld_5ftotalpressure',['HLLD_TotalPressure',['../_r_m_h_d_2hlld_8c.html#a18d654bf7e9375af013f6d876a909a3d',1,'hlld.c']]],
+  ['hllem_5fsolver',['HLLEM_Solver',['../_m_h_d_2hllem_8c.html#a72ed63d2ed7f84a1359ba0f82f870e64',1,'HLLEM_Solver(const Sweep *sweep, int beg, int end, double *cmax, Grid *grid):&#160;hllem.c'],['../_r_m_h_d_2hllem_8c.html#a72ed63d2ed7f84a1359ba0f82f870e64',1,'HLLEM_Solver(const Sweep *sweep, int beg, int end, double *cmax, Grid *grid):&#160;hllem.c']]]
 ];

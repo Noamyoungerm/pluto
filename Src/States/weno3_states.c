@@ -79,8 +79,11 @@ void States (const Sweep *sweep, int beg, int end, Grid *grid)
     dvp = dv[i];  
     dvm = dv[i-1];
 
-    #if SHOCK_FLATTENING == MULTID    
-    if (sweep->flag[i] & FLAG_MINMOD){  
+    #if SHOCK_FLATTENING == MULTID
+    if (sweep->flag[i] & FLAG_FLAT) {
+      vp[i][nv] = vm[i][nv] = v[i][nv];
+      continue;
+    }else if (sweep->flag[i] & FLAG_MINMOD){  
       for (nv = NVAR; nv--;    ) {
         dmm = MINMOD_LIMITER(dvp[nv], dvm[nv]);
         vp[i][nv] = v[i][nv] + 0.5*dmm;
@@ -140,8 +143,11 @@ S1 = 1.0/(b1 + 1.e-6)/(b1 + 1.e-6);
     PrimToChar(Lv, dvp, dwp);
     PrimToChar(Lv, dvm, dwm);
 
-    #if SHOCK_FLATTENING == MULTID    
-    if (sweep->flag[i] & FLAG_MINMOD){  
+    #if SHOCK_FLATTENING == MULTID
+    if (sweep->flag[i] & FLAG_FLAT) {
+      vp[i][nv] = vm[i][nv] = v[i][nv];
+      continue;
+    }else if (sweep->flag[i] & FLAG_MINMOD){  
       for (nv = NVAR; nv--;    ) {
         dmm = MINMOD_LIMITER(dvp[nv], dvm[nv]);
         vp[i][nv] = v[i][nv] + 0.5*dmm;

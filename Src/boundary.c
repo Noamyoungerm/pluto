@@ -374,9 +374,9 @@ void Boundary (const Data *d, int idim, Grid *grid)
       if (grid->nproc[IDIR] == 1){
         NVAR_LOOP(nv) PeriodicBoundary(d->Vc[nv], &center_box, side[is]);
         #ifdef STAGGERED_MHD
-        DIM_EXPAND(                                                 ;  ,
-                 PeriodicBoundary(d->Vs[BX2s], &x2face_box, side[is]);  ,
-                 PeriodicBoundary(d->Vs[BX3s], &x3face_box, side[is]);)
+        DIM_EXPAND(                                                    ;  ,
+                   PeriodicBoundary(d->Vs[BX2s], &x2face_box, side[is]);  ,
+                   PeriodicBoundary(d->Vs[BX3s], &x3face_box, side[is]);)
         #endif
       }
       SB_Boundary (d, side[is], grid);
@@ -447,7 +447,6 @@ void Boundary (const Data *d, int idim, Grid *grid)
       #endif
     }               
     #endif
-
 
   } /* end for (is = sbeg, send) */
 

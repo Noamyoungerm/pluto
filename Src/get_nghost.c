@@ -9,7 +9,7 @@
   Higher-order interpolation scheme may require more zones.
   
   \authors A. Mignone (mignone@to.infn.it)
-  \date    Aug 25, 2020
+  \date    Feb 1, 2021
 */
 /* ///////////////////////////////////////////////////////////////////// */
 #include "pluto.h"
@@ -24,11 +24,16 @@ int GetNghost (void)
 {
   int nghost = 2;
 
+  #if NGHOST_USR > 0
+  return NGHOST_USR;
+  #endif
+
 /* --------------------------------------------------------
    Choose stencil based on reconstruction.
    -------------------------------------------------------- */
 
-  #if    (RECONSTRUCTION == MP5)    || (RECONSTRUCTION == PARABOLIC) \
+  #if    (RECONSTRUCTION == MP5)    || (RECONSTRUCTION == PARABOLIC)  \
+      || (RECONSTRUCTION == WENOZ) \
       || (RECONSTRUCTION == MP5_FD) || (RECONSTRUCTION == WENOZ_FD)  \
       || (RECONSTRUCTION == LINEAR && LIMITER == FOURTH_ORDER_LIM) \
       || (RING_AVERAGE_REC > 2)
@@ -89,6 +94,16 @@ int GetNghost (void)
   #endif
   #endif
   
+/* --------------------------------------------------------
+   GCA particles can end in the very last zone, then propagate
+   for a maximum of 3 zones. Thus 4th ghost zone is added to
+   interpolate EM field derivatives
+   -------------------------------------------------------- */
+   
+  #if (PARTICLES == PARTICLES_CR) && (PARTICLES_CR_GC == YES)
+  nghost = MAX(4,nghost);
+  #endif
+
   return nghost;
 }
 

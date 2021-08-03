@@ -141,7 +141,7 @@ void RightHandSide (const Sweep *sweep, timeStep *Dts,
    1. Compute fluxes for dust
    -------------------------------------------------------- */
 
-#if DUST_FLUID == TRUE
+#if DUST_FLUID == YES
   DustFluid_Solver(sweep, beg - 1, end, Dts->cmax, grid);
 #endif
 

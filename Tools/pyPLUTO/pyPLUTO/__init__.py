@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 from . import pload
 from . import ploadparticles
 from . import Tools
@@ -6,14 +7,15 @@ from . import Image
 
 
 def nlast_info(w_dir=None,datatype=None):
-	""" Prints the information of the last step of the simulation as obtained from out files
+	""" 
+	Prints the information of the last step of the simulation as obtained from out files
 
 	**Inputs**:
 	
 	  w_dir -- path to the directory which has the dbl.out(or flt.out) and the data\n
 	  datatype -- If the data is of 'float' type then datatype = 'flt' else by default the datatype is set to 'dbl' (Double precision).
 
-        **Outputs**:
+    **Outputs**:
 	
 	  This function returns a dictionary with following keywords - \n
 
@@ -31,7 +33,8 @@ def nlast_info(w_dir=None,datatype=None):
 	  ``import pyPLUTO as pp``\n
 	  ``A = pp.nlast_info(w_dir=wdir,datatype='float')``	
 	"""
-	if w_dir is None: w_dir=os.getcwd()+'/'
+
+	if w_dir is None: w_dir = os.getcwd()+'/'
 	if datatype == 'flt':
 		fname_v = w_dir+"flt.out"
 	elif datatype == 'vtk':

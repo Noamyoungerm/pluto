@@ -22,6 +22,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">PLUTO Test Problems
+   &#160;<span id="projectnumber">4.4-patch2</span>
    </div>
   </td>
  </tr>
@@ -315,9 +316,9 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <p>Reconstruct electric field at faces to the edges. The electric field interpolated from the 1D Riemann solver and defined as E = E(pnt) + 2*E(diff), that is, the sum of the smooth flux term plust <em>twice</em> the diffusive part.</p>
 <p>For the UCT_MAXWELL solver we use: </p><p class="formulaDsp">
-<img class="formulaDsp" alt="\[ \begin{array}{l} \DS E_{x,e} = \frac{1}{4}( \hat{E}^{N}_x + \hat{E}^{S}_x + \hat{E}^{E}_x + \hat{E}^{W}_x) - \frac{\Delta B_y}{2} + \frac{\Delta B_z}{2} \\ \noalign{\medskip} \DS E_{y,e} = \frac{1}{4}( \hat{E}^{N}_y + \hat{E}^{S}_y + \hat{E}^{E}_y + \hat{E}^{W}_y) - \frac{\Delta_x B_z}{2} + \frac{\Delta_z B_x}{2} \\ \noalign{\medskip} \DS E_{z,e} = \frac{1}{4}( \hat{E}^{N}_z + \hat{E}^{S}_z + \hat{E}^{E}_z + \hat{E}^{W}_z) - \frac{\Delta_y B_x}{2} + \frac{\Delta_x B_y}{2} \end{array} \]" src="form_454.png"/>
+<img class="formulaDsp" alt="\[ \begin{array}{l} \DS E_{x,e} = \frac{1}{4}( \hat{E}^{N}_x + \hat{E}^{S}_x + \hat{E}^{E}_x + \hat{E}^{W}_x) - \frac{\Delta B_y}{2} + \frac{\Delta B_z}{2} \\ \noalign{\medskip} \DS E_{y,e} = \frac{1}{4}( \hat{E}^{N}_y + \hat{E}^{S}_y + \hat{E}^{E}_y + \hat{E}^{W}_y) - \frac{\Delta_x B_z}{2} + \frac{\Delta_z B_x}{2} \\ \noalign{\medskip} \DS E_{z,e} = \frac{1}{4}( \hat{E}^{N}_z + \hat{E}^{S}_z + \hat{E}^{E}_z + \hat{E}^{W}_z) - \frac{\Delta_y B_x}{2} + \frac{\Delta_x B_y}{2} \end{array} \]" src="form_198.png"/>
 </p>
-<p> where <img class="formulaInl" alt="$\hat{E}$" src="form_455.png"/> is the smooth part of the flux, usually obtained as arithmetic average at faces and reconstructed up to the edge, while <img class="formulaInl" alt="$\Delta B_x = B^R_x - B^L_x$" src="form_456.png"/>. </p>
+<p> where <img class="formulaInl" alt="$\hat{E}$" src="form_199.png"/> is the smooth part of the flux, usually obtained as arithmetic average at faces and reconstructed up to the edge, while <img class="formulaInl" alt="$\Delta B_x = B^R_x - B^L_x$" src="form_200.png"/>. </p>
 
 </div>
 </div>
@@ -354,9 +355,9 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <p>Reconstruct electric field at faces to the edges. The electric field interpolated from the 1D Riemann solver and defined as E = E(pnt) + 2*E(diff), that is, the sum of the smooth flux term plust <em>twice</em> the diffusive part.</p>
 <p>For the UCT_MAXWELL solver we use: </p><p class="formulaDsp">
-<img class="formulaDsp" alt="\[ \begin{array}{l} \DS E_{x,e} = \frac{1}{4}( \hat{E}^{N}_x + \hat{E}^{S}_x + \hat{E}^{E}_x + \hat{E}^{W}_x) - \frac{\Delta B_y}{2} + \frac{\Delta B_z}{2} \\ \noalign{\medskip} \DS E_{y,e} = \frac{1}{4}( \hat{E}^{N}_y + \hat{E}^{S}_y + \hat{E}^{E}_y + \hat{E}^{W}_y) - \frac{\Delta_x B_z}{2} + \frac{\Delta_z B_x}{2} \\ \noalign{\medskip} \DS E_{z,e} = \frac{1}{4}( \hat{E}^{N}_z + \hat{E}^{S}_z + \hat{E}^{E}_z + \hat{E}^{W}_z) - \frac{\Delta_y B_x}{2} + \frac{\Delta_x B_y}{2} \end{array} \]" src="form_454.png"/>
+<img class="formulaDsp" alt="\[ \begin{array}{l} \DS E_{x,e} = \frac{1}{4}( \hat{E}^{N}_x + \hat{E}^{S}_x + \hat{E}^{E}_x + \hat{E}^{W}_x) - \frac{\Delta B_y}{2} + \frac{\Delta B_z}{2} \\ \noalign{\medskip} \DS E_{y,e} = \frac{1}{4}( \hat{E}^{N}_y + \hat{E}^{S}_y + \hat{E}^{E}_y + \hat{E}^{W}_y) - \frac{\Delta_x B_z}{2} + \frac{\Delta_z B_x}{2} \\ \noalign{\medskip} \DS E_{z,e} = \frac{1}{4}( \hat{E}^{N}_z + \hat{E}^{S}_z + \hat{E}^{E}_z + \hat{E}^{W}_z) - \frac{\Delta_y B_x}{2} + \frac{\Delta_x B_y}{2} \end{array} \]" src="form_198.png"/>
 </p>
-<p> where <img class="formulaInl" alt="$\hat{E}$" src="form_455.png"/> is the smooth part of the flux, usually obtained as arithmetic average at faces and reconstructed up to the edge, while <img class="formulaInl" alt="$\Delta B_x = B^R_x - B^L_x$" src="form_456.png"/>.</p>
+<p> where <img class="formulaInl" alt="$\hat{E}$" src="form_199.png"/> is the smooth part of the flux, usually obtained as arithmetic average at faces and reconstructed up to the edge, while <img class="formulaInl" alt="$\Delta B_x = B^R_x - B^L_x$" src="form_200.png"/>.</p>
 <pre class="fragment">      i+1/2    j+1/2   k+1/2 
 </pre><p> exj +vz exk -vy eyi -vz eyk +vx ezi +vy ezj -vx </p>
 
@@ -365,7 +366,7 @@ Functions</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Nov 16 2020 10:27:17 for PLUTO Test Problems by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sat Jun 26 2021 13:25:25 for PLUTO Test Problems by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>

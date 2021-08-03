@@ -167,10 +167,17 @@ void Particles_Display(Particle *p)
 {
   printLog ("////////////////////////////////////////////////////////////////\n");
   printLog ("// id:           %d\n", p->id);
-  printLog ("// (x1,x2,x3):   %f, %f, %f\n", p->coord[IDIR],  p->coord[JDIR], p->coord[KDIR]);
-  printLog ("// (v1,v2,v3):   %f, %f, %f\n", p->speed[IDIR], p->speed[JDIR], p->speed[KDIR]);
-  printLog ("// (i,j,k):      %d, %d, %d\n", p->cell[IDIR],  p->cell[JDIR], p->cell[KDIR]);
-  printLog ("// tinj:         %f\n", p->tinj);
+  printLog ("// (x1,x2,x3):   %8.3e, %8.3e, %8.3e\n",
+                 p->coord[IDIR],  p->coord[JDIR], p->coord[KDIR]);
+  printLog ("// (v1,v2,v3):   %8.3e, %8.3e, %8.3e\n",
+                 p->speed[IDIR], p->speed[JDIR], p->speed[KDIR]);
+  #if PARTICLES == PARTICLES_DUST
+  printLog ("// mass:         %8.3e\n",p->mass);
+  printLog ("// tau_s:        %8.3e\n",p->tau_s);
+  #endif
+  printLog ("// tinj:         %8.3e\n", p->tinj);
+  printLog ("// (i,j,k):      %d, %d, %d\n",
+                 p->cell[IDIR],  p->cell[JDIR], p->cell[KDIR]);
   printLog ("////////////////////////////////////////////////////////////////\n"); 
 }
 

@@ -1,11 +1,7 @@
 var searchData=
 [
   ['e',['E',['../struct_map__param.html#a1eb62b8cb1f5e5f571d51179718e7d4c',1,'Map_param']]],
-  ['eigenv_2ec',['eigenv.c',['../_m_h_d_2eigenv_8c.html',1,'']]],
-  ['eigenv_2ec',['eigenv.c',['../_res_r_m_h_d_2eigenv_8c.html',1,'']]],
-  ['eigenv_2ec',['eigenv.c',['../_r_h_d_2eigenv_8c.html',1,'']]],
-  ['eigenv_2ec',['eigenv.c',['../_r_m_h_d_2eigenv_8c.html',1,'']]],
-  ['eigenv_2ec',['eigenv.c',['../_h_d_2eigenv_8c.html',1,'']]],
+  ['eigenv_2ec',['eigenv.c',['../_h_d_2eigenv_8c.html',1,'(Global Namespace)'],['../_m_h_d_2eigenv_8c.html',1,'(Global Namespace)'],['../_res_r_m_h_d_2eigenv_8c.html',1,'(Global Namespace)'],['../_r_h_d_2eigenv_8c.html',1,'(Global Namespace)'],['../_r_m_h_d_2eigenv_8c.html',1,'(Global Namespace)']]],
   ['eigenvalues',['Eigenvalues',['../_h_d_2eigenv_8c.html#a37af29f3116283eac3c90da8a19ff1b4',1,'Eigenvalues(double **v, double *csound2, double **lambda, int beg, int end):&#160;eigenv.c'],['../_h_d_2mod__defs_8h.html#aca33f7cb69f7be2120f62015488d0393',1,'Eigenvalues(double **, double *, double **, int, int):&#160;eigenv.c'],['../_m_h_d_2eigenv_8c.html#a37af29f3116283eac3c90da8a19ff1b4',1,'Eigenvalues(double **v, double *csound2, double **lambda, int beg, int end):&#160;eigenv.c']]],
   ['emf',['EMF',['../struct_e_m_f.html',1,'']]],
   ['en',['En',['../struct_sweep.html#a6c48892586715e2fa9e7e692ce82920d',1,'Sweep']]],
@@ -13,9 +9,7 @@ var searchData=
   ['enthalpy',['Enthalpy',['../_ideal_2eos_8c.html#a9978952e18c3d4ce5275825b921ff60f',1,'Enthalpy(double **v, double *h, int beg, int end):&#160;eos.c'],['../_isothermal_2eos_8c.html#a9978952e18c3d4ce5275825b921ff60f',1,'Enthalpy(double **v, double *h, int beg, int end):&#160;eos.c'],['../_taub_2eos_8c.html#a9978952e18c3d4ce5275825b921ff60f',1,'Enthalpy(double **v, double *h, int beg, int end):&#160;eos.c']]],
   ['entropy',['Entropy',['../_ideal_2eos_8c.html#a86e3e16f69d89dd4de4c0ab4d9358e5d',1,'Entropy(double **v, double *s, int beg, int end):&#160;eos.c'],['../_isothermal_2eos_8c.html#a86e3e16f69d89dd4de4c0ab4d9358e5d',1,'Entropy(double **v, double *s, int beg, int end):&#160;eos.c'],['../_taub_2eos_8c.html#a86e3e16f69d89dd4de4c0ab4d9358e5d',1,'Entropy(double **v, double *s, int beg, int end):&#160;eos.c']]],
   ['entropy_5fswitch_2ec',['entropy_switch.c',['../entropy__switch_8c.html',1,'']]],
-  ['eos_2ec',['eos.c',['../_isothermal_2eos_8c.html',1,'']]],
-  ['eos_2ec',['eos.c',['../_taub_2eos_8c.html',1,'']]],
-  ['eos_2ec',['eos.c',['../_ideal_2eos_8c.html',1,'']]],
+  ['eos_2ec',['eos.c',['../_ideal_2eos_8c.html',1,'(Global Namespace)'],['../_isothermal_2eos_8c.html',1,'(Global Namespace)'],['../_taub_2eos_8c.html',1,'(Global Namespace)']]],
   ['eos_2eh',['eos.h',['../_p_v_t_e_2eos_8h.html',1,'']]],
   ['ex1',['Ex1',['../struct_data.html#aaf42bfe417c6533d2d110c60da98f3d8',1,'Data']]],
   ['ex2',['Ex2',['../struct_data.html#a514ab1439c7eb2500c9940b1d76e7554',1,'Data']]],

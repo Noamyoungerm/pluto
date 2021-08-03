@@ -236,11 +236,11 @@ Real LevelPluto::step(LevelData<FArrayBox>&       a_U,
 
    #if (TIME_STEPPING == RK2)
     // The current storage for flags (RK2 only)
-    BaseFab<unsigned char>& flags = m_Flags[dit];
+    BaseFab<uint16_t>& flags = m_Flags[dit];
     // Local temporary storage for conserved variables
     FArrayBox& curUtmp = m_Utmp[dit];
    #else
-    BaseFab<unsigned char> flags;
+    BaseFab<uint16_t> flags;
     FArrayBox curUtmp;
    #endif
 

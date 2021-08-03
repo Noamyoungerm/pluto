@@ -174,7 +174,7 @@ void PrimSource (const State *gas, double **src, int beg, int end, Grid *grid)
   double g[3], ch2, db, scrh;
 
 #if ROTATING_FRAME == YES
-  printLog ("! PrimSource: does not work with rotations\n");
+  printLog ("! PrimSource(): does not work with rotations\n");
   QUIT_PLUTO(1);
 #endif
 

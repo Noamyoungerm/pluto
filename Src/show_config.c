@@ -4,7 +4,7 @@
   \brief Print useful information about the current computations.
 
   \author  A. Mignone (mignone@to.infn.it)
-  \date    March 20, 2020
+  \date    Nov 27, 2020
 */
 /* ///////////////////////////////////////////////////////////////////// */
 #include "pluto.h"
@@ -67,9 +67,10 @@ void ShowConfig (int argc, char *argv[], char *ini_file)
     print ("  sysconf.out file not found... \n\n");
   }
  
-  print ("  - Basic data type:\n");
+  print ("  - Basic data type size (Bytes):\n");
   print ("    o sizeof (char)     = %d\n", sizeof(char));
   print ("    o sizeof (uchar)    = %d\n", sizeof(unsigned char));
+  print ("    o sizeof (uint16_t) = %d\n", sizeof(uint16_t));
   print ("    o sizeof (short)    = %d\n", sizeof(short));
   print ("    o sizeof (ushort)   = %d\n", sizeof(unsigned short));
   print ("    o sizeof (int)      = %d\n", sizeof(int));
@@ -80,7 +81,7 @@ void ShowConfig (int argc, char *argv[], char *ini_file)
   print ("    o sizeof (*double)  = %d\n", sizeof(dbl_pnt));
   
 
-  print ("\n  - Structure data type:\n");
+  print ("\n  - Structure data type (Bytes):\n");
   print ("    o sizeof (cmdLine)    = %d\n", sizeof(cmdLine));
   print ("    o sizeof (Data)       = %d\n", sizeof(Data));
   print ("    o sizeof (Grid)       = %d\n", sizeof(Grid));
@@ -198,6 +199,17 @@ void ShowConfig (int argc, char *argv[], char *ini_file)
   if (RECONSTRUCTION == MP5_FD)       print ("MP5 (FD), 5th order\n");
 #endif
 
+  print ("  TIME STEPPING:    ");
+  if (TIME_STEPPING == EULER)            print ("Euler\n");
+  if (TIME_STEPPING == RK2)              print ("Runga-Kutta II\n");
+  if (TIME_STEPPING == RK3)              print ("Runga_Kutta III\n");
+  if (TIME_STEPPING == CHARACTERISTIC_TRACING)
+                                         print ("Characteristic Tracing\n");
+#if TIME_STEPPING == HANCOCK
+  if (PRIMITIVE_HANCOCK == YES) print ("Hancock [Primitive]\n");
+  else                          print ("Hancock [Conservative]\n");
+#endif
+
   print ("  TRACERS:          %d\n", NTRACER);
   print ("  VARIABLES:        %d\n", NVAR);
   print ("  ENTROPY_SWITCH:   %s\n",(ENTROPY_SWITCH != NO ? "ENABLED":"NO"));
@@ -206,8 +218,7 @@ void ShowConfig (int argc, char *argv[], char *ini_file)
 #endif
 
   print ("  LOADED MODULES:\n");
-  #if PHYSICS == MHD
-   #ifdef SHEARINGBOX
+ #ifdef SHEARINGBOX
     print ("\n  o [SHEARINGBOX]\n");
     print ("     - Order:             %d\n", SB_ORDER);
     print ("     - Sym Hydro Flux:    %s\n", 
@@ -218,7 +229,6 @@ void ShowConfig (int argc, char *argv[], char *ini_file)
              (SB_SYMMETRIZE_EZ == YES ? "YES":"NO"));
     print ("     - Force EMF periods: %s\n", 
              (SB_FORCE_EMF_PERIODS == YES ? "YES":"NO"));
-   #endif
   #endif
   #ifdef FARGO
   print ("\n  o [FARGO]\n");
@@ -237,17 +247,6 @@ void ShowConfig (int argc, char *argv[], char *ini_file)
   else if (EOS == ISOTHERMAL)   print ("Isothermal\n");
   else if (EOS == TAUB)         print ("Taub - TM\n");
   else                          print ("None\n");
-
-  print ("  TIME STEPPING:    ");
-  if (TIME_STEPPING == EULER)            print ("Euler\n");
-  if (TIME_STEPPING == RK2)              print ("Runga-Kutta II\n");
-  if (TIME_STEPPING == RK3)              print ("Runga_Kutta III\n");
-  if (TIME_STEPPING == CHARACTERISTIC_TRACING)
-                                         print ("Characteristic Tracing\n");
-#if TIME_STEPPING == HANCOCK
-  if (PRIMITIVE_HANCOCK == YES) print ("Hancock [Primitive]\n");
-  else                          print ("Hancock [Conservative]\n");
-#endif
 
   #if PARABOLIC_FLUX != NO
    print ("  DIFFUSION TERMS:");

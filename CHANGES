@@ -1,4 +1,17 @@
-CURRENT RELEASE: 4.4 (November 2020)
+CURRENT RELEASE: 4.4-patch1 (November 2020)
+**********************************************************
+*                CHANGES from 4.4
+*********************************************************
+
+- FARGO module has been fixed for restart operations and a few
+  other (minor) bugs;  
+- Added NGHOST_USR to specify number of ghost zones
+  different from PLUTO default;
+- d->flag[][][] has changed type, from "char" to "uint16_t"
+- A new macro "FAILSAFE" introduced to deal with problems
+  of negative density (see userguide);
+- Some pyPLUTO bugs fixed.
+
 **********************************************************
 *               CHANGES from 4.3
 **********************************************************

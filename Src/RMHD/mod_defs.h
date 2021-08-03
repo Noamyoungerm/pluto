@@ -9,7 +9,7 @@
   \authors A. Mignone (mignone@to.infn.it)\n
            C. Zanni   (zanni@oato.inaf.it)\n
            G. Mattia
-  \date    Dec 03, 2019
+  \date    Dec 02, 2020
 */
 /* ///////////////////////////////////////////////////////////////////// */
 
@@ -200,7 +200,7 @@ typedef struct Mao_param_{
 /* ---- Function prototyping ----  */
 
 int  ApproximateFastWaves  (double *, double, double, double *);
-int  ConsToPrim   (double **, double **, int, int, unsigned char *);
+int  ConsToPrim   (double **, double **, int, int, uint16_t *);
 void ConvertTo4vel (double **, int, int);
 void ConvertTo3vel (double **, int, int);
 void PrimEigenvectors (double *, double, double, double *, double **, double **);
@@ -214,8 +214,9 @@ void VelocityLimiter (double *, double *, double *);
 
 int  Magnetosonic (double *vp, double cs2, double h, double *lambda);
 
-Riemann_Solver LF_Solver, HLL_Solver, HLLC_Solver, HLLD_Solver, HLL_Linde_Solver; 
-Riemann_Solver GFORCE_Solver, GMUSTA1_Solver;
+Riemann_Solver LF_Solver, HLL_Solver, HLLC_Solver, HLLD_Solver, HLLEM_Solver;
+Riemann_Solver HLL_Linde_Solver, GMUSTA1_Solver; 
+Riemann_Solver GFORCE_Solver;
 
 int  RMHD_EntropySolve (Map_param *);
 int  RMHD_EnergySolve  (Map_param *);

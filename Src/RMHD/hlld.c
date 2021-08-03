@@ -33,6 +33,9 @@
 */
 /* ///////////////////////////////////////////////////////////////////// */
 #include"pluto.h"
+
+#define HLLD_ITERATIONS   -1
+
 #define MAX_ITER  20
 #define COUNT_FAILURES  NO /**< When set to YES, count number of failures and 
         write the count to "hlld_fails.dat" (works in parallel as well).

@@ -169,8 +169,11 @@ void States (const Sweep *sweep, int beg, int end, Grid *grid)
 
   for (i = beg; i <= end; i++) {
 
-    #if SHOCK_FLATTENING == MULTID    
-    if (sweep->flag[i] & FLAG_MINMOD) {
+    #if SHOCK_FLATTENING == MULTID
+    if (sweep->flag[i] & FLAG_FLAT) {
+      vp[i][nv] = vm[i][nv] = v[i][nv];
+      continue;
+    } else if (sweep->flag[i] & FLAG_MINMOD) {
       wp = plm_coeffs.wp;
       wm = plm_coeffs.wm;
       NVAR_LOOP(nv) {
@@ -377,8 +380,11 @@ void States (const Sweep *sweep, int beg, int end, Grid *grid)
     for (k = NFLX; k < NVAR; k++) lambda[k] = v[i][VXn]; 
     #endif
 
-    #if SHOCK_FLATTENING == MULTID    
-    if (sweep->flag[i] & FLAG_MINMOD) {
+    #if SHOCK_FLATTENING == MULTID
+    if (sweep->flag[i] & FLAG_FLAT) {
+      vp[i][nv] = vm[i][nv] = v[i][nv];
+      continue;
+    }else if (sweep->flag[i] & FLAG_MINMOD) {
       for (nv = 0; nv < NVAR; nv++){
         dp = dvF[i][nv]  *plm_coeffs.wp[i];
         dm = dvF[i-1][nv]*plm_coeffs.wm[i];

@@ -6,8 +6,8 @@
   Contains basic macro definitions, structure definitions and global
   variable declarations used by the MHD module.
 
-  \author A. Mignone (mignone@ph.unito.it)
-  \date   June 19, 2017
+  \author A. Mignone (mignone@to.infn.it)
+  \date   Dec 02, 2020
 */
 /* ///////////////////////////////////////////////////////////////////// */
 
@@ -154,7 +154,7 @@ void BackgroundField (double x1, double x2, double x3, double *B0);
 
 void ConsEigenvectors (double *, double *, double,
                        double **, double **, double *);
-int  ConsToPrim   (double **, double **, int , int, unsigned char *);
+int  ConsToPrim   (double **, double **, int , int, uint16_t *);
 void Eigenvalues (double **, double *, double **, int, int);
 
 void Flux (const State *, int, int);
@@ -184,7 +184,8 @@ void PrimToCons  (double **, double **, int, int);
 
 #endif
 
-Riemann_Solver HLL_Solver, HLLC_Solver, HLLD_Solver, HLL_Linde_Solver;
+Riemann_Solver HLL_Solver, HLLC_Solver, HLLD_Solver, HLLEM_Solver;
+Riemann_Solver HLL_Linde_Solver;
 Riemann_Solver LF_Solver, Roe_Solver, GFORCE_Solver, GMUSTA1_Solver;
 
 #if AMBIPOLAR_DIFFUSION != NO

@@ -173,7 +173,7 @@ int AdvanceStep (Data *data, timeStep *Dts, Grid *grid)
   int    nbeg, nend, ntot;
 
   static Sweep sweep;
-  static unsigned char *flagm, *flagp;
+  static uint16_t *flagm, *flagp;
 
   State *stateC = &(sweep.stateC);
   State *stateL = &(sweep.stateL);
@@ -223,8 +223,8 @@ int AdvanceStep (Data *data, timeStep *Dts, Grid *grid)
   if (Uh == NULL){
     MakeState (&sweep);
 
-    flagp  = ARRAY_1D(NMAX_POINT, unsigned char);
-    flagm  = ARRAY_1D(NMAX_POINT, unsigned char);
+    flagp  = ARRAY_1D(NMAX_POINT, uint16_t);
+    flagm  = ARRAY_1D(NMAX_POINT, uint16_t);
     dt2_dx = ARRAY_1D(NMAX_POINT, double);
 
     Uh  = ARRAY_4D(NX3_TOT, NX2_TOT, NX1_TOT, NVAR, double);

@@ -159,7 +159,7 @@ void PatchPluto::getPrimitiveVars (Data_Arr U, Data *d, Grid *grid)
   int   dir, err;
   int   nx, ny, nz;
   int   lft_side[3] = {0,0,0}, rgt_side[3]={0,0,0};
-  static unsigned char ***flagEntr;
+  static uint16_t ***flagEntr;
   RBox  tbox, box; 
 
   nx = grid->np_tot[IDIR];
@@ -192,12 +192,12 @@ void PatchPluto::getPrimitiveVars (Data_Arr U, Data *d, Grid *grid)
    ------------------------------------------------- */
 
   DIM_EXPAND(if (lft_side[IDIR]) box.ibeg = IBEG;  ,
-            if (lft_side[JDIR]) box.jbeg = JBEG;  ,
-            if (lft_side[KDIR]) box.kbeg = KBEG;)
+             if (lft_side[JDIR]) box.jbeg = JBEG;  ,
+             if (lft_side[KDIR]) box.kbeg = KBEG;)
 
   DIM_EXPAND(if (rgt_side[IDIR]) box.iend = IEND;  ,
-            if (rgt_side[JDIR]) box.jend = JEND;  ,
-            if (rgt_side[KDIR]) box.kend = KEND;)
+             if (rgt_side[JDIR]) box.jend = JEND;  ,
+             if (rgt_side[KDIR]) box.kend = KEND;)
 
 /* ----------------------------------------------------------
     Convert conservative variables into primitive variables.
@@ -212,7 +212,7 @@ void PatchPluto::getPrimitiveVars (Data_Arr U, Data *d, Grid *grid)
     || ENTROPY_SWITCH == ALWAYS    \
     || ENTROPY_SWITCH == CHOMBO_REGRID
   if (flagEntr == NULL) {
-    flagEntr = ARRAY_3D(NX3_MAX, NX2_MAX, NX1_MAX, unsigned char);
+    flagEntr = ARRAY_3D(NX3_MAX, NX2_MAX, NX1_MAX, uint16_t);
     for (k = 0; k < NX3_MAX; k++){
     for (j = 0; j < NX2_MAX; j++){
     for (i = 0; i < NX1_MAX; i++){
@@ -318,14 +318,14 @@ void PatchPluto::convertFArrayBox(FArrayBox&  U)
   int iend, jend, kend;
   int i,j,k, nv;
   double ***UU[NVAR];
-  static unsigned char *flag;
+  static uint16_t *flag;
   static double **u, **v;
   RBox box;
   
   if (u == NULL){
     u    = ARRAY_2D(NMAX_POINT, NVAR, double);
     v    = ARRAY_2D(NMAX_POINT, NVAR, double);
-    flag = ARRAY_1D(NMAX_POINT, unsigned char);
+    flag = ARRAY_1D(NMAX_POINT, uint16_t);
   }
 
   jbeg = jend = kbeg = kend = 0;

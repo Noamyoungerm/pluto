@@ -43,6 +43,9 @@ Riemann_Solver *SetSolver (const char *solver)
             !strcmp(solver, "hll"))     return (&HLL_Solver);
    else if (!strcmp(solver, "hllc"))    return (&HLLC_Solver);
    else if (!strcmp(solver, "hlld"))    return (&HLLD_Solver);
+   #if ENABLE_HLLEM == YES
+   else if (!strcmp(solver, "hllem"))   return (&HLLEM_Solver);
+   #endif
    else if (!strcmp(solver, "gforce"))  return (&GFORCE_Solver);
 /*
    else if (!strcmp(solver, "gmusta1")) return (&GMUSTA1_Solver);

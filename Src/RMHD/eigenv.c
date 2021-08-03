@@ -68,11 +68,11 @@ fdZ := (1-e2)*(u[0]*lambda - u[x])^4 + (1-lambda^2)*
 ########################################################
 "print the coefficients of the quartic polynomial fdZ";
 
-coeff(fMB,lambda,4);
-coeff(fMB,lambda,3);
-coeff(fMB,lambda,2);
-coeff(fMB,lambda,1);
-coeff(fMB,lambda,0);
+coeff(fdZ,lambda,4);
+coeff(fdZ,lambda,3);
+coeff(fdZ,lambda,2);
+coeff(fdZ,lambda,1);
+coeff(fdZ,lambda,0);
 
 fdZ := fdZ*wt;  
 
@@ -148,6 +148,8 @@ simplify(a0 - coeff(fMB2,lambda,0)/gamma^2);
 
   if (u02 >= 1.0){
     printLog ("! Magnetosonic(): |v|= %f > 1\n",u02);
+    printLog ("  vp = ");
+    ShowState(vp, 1);
     return 1;
   }
 

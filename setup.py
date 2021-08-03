@@ -32,7 +32,7 @@ def PlutoInterface(pluto_dir, do_auto_update = False):
 
     interface_optval = menu.Browse(interface_opts)
 
-    if interface_optval == interface_opts[0]:
+    if interface_optval == interface_opts[0]:   #  Setup problem
       if not os.path.exists(work_dir+'/init.c'):
         shutil.copy(pluto_dir+'/Src/Templates/init.c',work_dir+'/init.c')
     
@@ -41,16 +41,52 @@ def PlutoInterface(pluto_dir, do_auto_update = False):
 
       MakeProblem(work_dir, pluto_dir, 0, 1)
     
-    if interface_optval == interface_opts[1]:
+    if interface_optval == interface_opts[1]:  #  Change makefile
       MakeProblem(work_dir, pluto_dir, 1, 0)
 
-    if interface_optval == interface_opts[2]:
+    if interface_optval == interface_opts[2]:  #  Auto-update 
       menu.Prompt('Press Enter to Update '+work_dir)
       MakeProblem(work_dir, pluto_dir, 1, 1)
       menu.Print ("Configuration up to date",sleep=0.75)
       break
 
-    if interface_optval == interface_opts[3]: #Save Setup
+    if interface_optval == interface_opts[3]: #  Save Setup
+      # ------------------------------------
+      #  get the path basename and make 
+      #  a tar archive 
+      # ------------------------------------
+
+      menu.RestoreScreen()
+      os.chdir(work_dir)
+      default_name = os.path.basename(work_dir)
+      os.system("clear")
+      setup_name = input(" > Archive name ("+default_name+"): ")
+      complete_backup = 0
+      scrh       = input(" > Backup source files ? (n): ")
+      if (setup_name == ''): 
+        setup_name = default_name
+ 
+      if (scrh == "y"): 
+        complete_backup = 1
+
+      setup_name = setup_name+".tar"
+      ifail = os.system ("tar cvf "+setup_name+" *.c *.ini *.h")
+
+      # -------------------------------
+      #  back up source tree
+      # -------------------------------
+
+      if (complete_backup):
+        ifail = ifail or os.system("tar rvf "+setup_name+" --directory="+pluto_dir+"/   Src/ ")
+        ifail = ifail or os.system("tar rvf "+setup_name+" --directory="+pluto_dir+"/   Config/")
+        ifail = ifail or os.system("tar rvf "+setup_name+" makefile")
+          
+      ifail = ifail or os.system ("gzip -f "+setup_name)
+      if (ifail == 0):
+        print (" > "+setup_name+".gz successfully created\n")
+      else:
+        print (" ! Error creating "+setup_name+".gz\n")
+ 
       sys.exit()
 
   if (menu.CursesIsActive()): menu.RestoreScreen()

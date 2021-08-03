@@ -169,8 +169,8 @@ class DefineProblem(object):
     geolist = ['CARTESIAN','CYLINDRICAL','POLAR','SPHERICAL']
     bfolist = ['NO','VECTOR', 'POTENTIAL', '(VECTOR+POTENTIAL)']
     coolist = ['NO','POWER_LAW','TABULATED','SNEq','MINEq','H2_COOL', 'KROME']
-    intlist = ['FLAT','LINEAR','LimO3','WENO3','PARABOLIC','MP5']
-    tmslist = ['EULER','RK2','RK3','HANCOCK','CHARACTERISTIC_TRACING']
+    intlist = ['FLAT','LINEAR','LimO3','WENO3','PARABOLIC','WENOZ','MP5']
+    tmslist = ['EULER','RK2','RK3','RK4','HANCOCK','CHARACTERISTIC_TRACING']
     ntrlist = ['%d'%n for n in range(9)]
     prtlist = ['NO','PARTICLES_LP','PARTICLES_CR','PARTICLES_DUST']
     udplist = ['%d'%n for n in range(32)]
@@ -263,7 +263,7 @@ class DefineProblem(object):
     self.default_HD = ['NO','IDEAL', 'NO',
                        'NO',    'NO',
                        'NO']
-    self.options_HD = [['NO','NO'],['IDEAL','PVTE_LAW','ISOTHERMAL'],
+    self.options_HD = [['NO','YES'],['IDEAL','PVTE_LAW','ISOTHERMAL'],
                        ['NO','SELECTIVE','ALWAYS','CHOMBO_REGRID'],
                        ['NO','EXPLICIT','SUPER_TIME_STEPPING','RK_LEGENDRE'],
                        ['NO','EXPLICIT','SUPER_TIME_STEPPING','RK_LEGENDRE'],

@@ -369,6 +369,13 @@ printf ("%f  %d %s\n",runtime->patch_left_node[idim][ip],runtime->patch_npoint[i
     QUIT_PLUTO(1);
   }
 
+/* ---- particles tstart ---- */
+
+  runtime->particles_tstart = 0.0;
+  if (ParamExist ("particles_tstart")) {
+    runtime->particles_tstart = atof(ParamFileGet("particles_tstart", 1));
+  }
+
  /* ---- particles dbl output ---- */
 
   if (ParamExist("particles_dbl")){

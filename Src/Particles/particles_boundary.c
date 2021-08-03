@@ -13,7 +13,7 @@
   \authors   A. Mignone (mignone@to.infn.it)\n
              B. Vaidya (bvaidya@unito.it)\n
   
-  \date      June 26, 2017
+  \date      Mar 13, 2021
 */
 /* ///////////////////////////////////////////////////////////////////// */
 #include "pluto.h"
@@ -70,7 +70,11 @@ void Particles_Boundary(Data *d, Grid *grid)
         p    = &(curr->p);        
         if (p->coord[dir] < xbeg) {
           p->coord[dir]   = 2.0*xbeg - p->coord[dir];
-          p->speed[dir] *= -1.0;          
+          #if (PARTICLES == PARTICLES_CR) && (PARTICLES_CR_GC == YES)
+          /* Do nothing in this case */
+          #else
+          p->speed[dir] *= -1.0;
+          #endif
         }
       }
       break;
@@ -128,7 +132,11 @@ void Particles_Boundary(Data *d, Grid *grid)
 
         if (p->coord[dir] >= xend) {
           p->coord[dir]   = 2.0*xend - p->coord[dir];
-          p->speed[dir] *= -1.0;          
+          #if (PARTICLES == PARTICLES_CR) && (PARTICLES_CR_GC == YES)
+          /* Do nothing in this case */
+          #else
+          p->speed[dir] *= -1.0;
+          #endif
         }
       }
       break;
@@ -177,7 +185,7 @@ void Particles_Boundary(Data *d, Grid *grid)
 
   
 #if DEBUG      
-if (d_condition)print("Particles_Check = %d, %d, %d; p_nparticles = %d\n",
+if (d_condition) print("Particles_Check = %d, %d, %d; p_nparticles = %d\n",
         Particles_CheckAll(d->PHead, 0, grid),
         Particles_CheckAll(d->PHead, 1, grid),
         Particles_CheckAll(d->PHead, 2, grid), p_nparticles);

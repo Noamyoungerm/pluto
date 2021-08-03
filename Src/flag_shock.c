@@ -245,10 +245,6 @@ void FlagShock (const Data *d, Grid *grid)
       #endif
     } /* end if (divV < 0) */
 
-    
-
-
-
 #if RADIATION
 
     #if GEOMETRY == CARTESIAN
@@ -283,16 +279,16 @@ void FlagShock (const Data *d, Grid *grid)
        
       pt_min = er[k][j][i];
       DIM_EXPAND(pt_min1 = MIN(pt[k][j][i+1], pt[k][j][i-1]); ,
-               pt_min2 = MIN(pt[k][j+1][i], pt[k][j-1][i]);  ,
-               pt_min3 = MIN(pt[k+1][j][i], pt[k-1][j][i]); )
+                 pt_min2 = MIN(pt[k][j+1][i], pt[k][j-1][i]);  ,
+                 pt_min3 = MIN(pt[k+1][j][i], pt[k-1][j][i]); )
 
       DIM_EXPAND(pt_min = MIN(pt_min, pt_min1);  ,
-               pt_min = MIN(pt_min, pt_min2);  ,
-               pt_min = MIN(pt_min, pt_min3);)
+                 pt_min = MIN(pt_min, pt_min2);  ,
+                 pt_min = MIN(pt_min, pt_min3);)
       
       DIM_EXPAND(dpx1 = fabs(pt[k][j][i+1] - pt[k][j][i-1]);  ,  
-               dpx2 = fabs(pt[k][j+1][i] - pt[k][j-1][i]);  , 
-               dpx3 = fabs(pt[k+1][j][i] - pt[k-1][j][i]);)   
+                 dpx2 = fabs(pt[k][j+1][i] - pt[k][j-1][i]);  , 
+                 dpx3 = fabs(pt[k+1][j][i] - pt[k-1][j][i]);)   
                 
       gradp = DIM_EXPAND(dpx1, + dpx2, + dpx3);
 
@@ -314,7 +310,7 @@ void FlagShock (const Data *d, Grid *grid)
   }}}
 
 #ifdef PARALLEL
-  AL_Exchange (d->flag[0][0], SZ_char);
+  AL_Exchange (d->flag[0][0], SZ_uint16_t);
 #endif
 }
 

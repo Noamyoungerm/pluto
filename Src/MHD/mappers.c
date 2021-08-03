@@ -16,7 +16,7 @@
       else                       --> p = p(E)
   
   \author A. Mignone (mignone@to.infn.it)
-  \date   July 1, 2019
+  \date   Nov 27, 2020
 */
 /* ///////////////////////////////////////////////////////////////////// */
 #include "pluto.h"
@@ -86,8 +86,7 @@ void PrimToCons (double **uprim, double **ucons, int ibeg, int iend)
   }
 }
 /* ********************************************************************* */
-int ConsToPrim (double **ucons, double **uprim, int ibeg, int iend, 
-                unsigned char *flag)
+int ConsToPrim (double **ucons, double **uprim, int beg, int end, uint16_t *flag)
 /*!
  * Convert from conservative to primitive variables.
  *
@@ -107,7 +106,8 @@ int ConsToPrim (double **ucons, double **uprim, int ibeg, int iend,
  *
  *********************************************************************** */
 {
-  int  i, nv, err, ifail;
+  int  i, nv, err;
+  int  ifail = 0;
   int  use_entropy, use_energy=1;
   double tau, rho, gmm1, rhoe, T;
   double b2, m2, kinb2, rhog1;
@@ -117,8 +117,7 @@ int ConsToPrim (double **ucons, double **uprim, int ibeg, int iend,
    gmm1 = g_gamma - 1.0;
 #endif
 
-  ifail = 0;
-  for (i = ibeg; i <= iend; i++) {
+  for (i = beg; i <= end; i++) {
 
     u = ucons[i];
     v = uprim[i];
@@ -134,6 +133,7 @@ int ConsToPrim (double **ucons, double **uprim, int ibeg, int iend,
       Where (i, NULL);
       u[RHO]   = g_smallDensity;
       flag[i] |= FLAG_CONS2PRIM_FAIL;
+      flag[i] |= FLAG_NEGATIVE_DENSITY;
       ifail    = 1;
     }
 
@@ -161,7 +161,7 @@ int ConsToPrim (double **ucons, double **uprim, int ibeg, int iend,
       )
       u[ENG]    = g_smallPressure/gmm1 + kinb2;
       flag[i] |= FLAG_CONS2PRIM_FAIL;
-      ifail    = 1;
+//      ifail    = 1;
     }
     #endif
 
@@ -182,7 +182,7 @@ int ConsToPrim (double **ucons, double **uprim, int ibeg, int iend,
            )
         v[PRS]   = g_smallPressure;
         flag[i] |= FLAG_CONS2PRIM_FAIL;
-        ifail    = 1;
+//        ifail    = 1;
       }
       u[ENG] = v[PRS]/gmm1 + kinb2; /* -- recompute energy -- */
     }
@@ -198,7 +198,7 @@ int ConsToPrim (double **ucons, double **uprim, int ibeg, int iend,
         v[PRS]    = g_smallPressure;
         u[ENG]    = v[PRS]/gmm1 + kinb2; /* -- recompute energy -- */
         flag[i] |= FLAG_CONS2PRIM_FAIL;
-        ifail    = 1;
+//        ifail    = 1;
       }
       #if ENTROPY_SWITCH
       u[ENTR] = v[PRS]/pow(rho,gmm1);  /* -- Recompute entropy -- */
@@ -242,7 +242,7 @@ int ConsToPrim (double **ucons, double **uprim, int ibeg, int iend,
       rhoe     = InternalEnergy(v, T);
       u[ENG]   = rhoe + kinb2; /* -- redefine total energy -- */
       flag[i] |= FLAG_CONS2PRIM_FAIL;
-      ifail    = 1;
+//      ifail    = 1;
     }
     v[PRS] = Pressure(v, T);
 

@@ -14,8 +14,8 @@
         <-am   (i)   ap->       (i+1)
      
          
-  \author A. Mignone (mignone@ph.unito.it)
-  \date   Oct 23, 2018
+  \author A. Mignone (mignone@to.infn.it)
+  \date   Feb 05, 2021
 */
 /* ///////////////////////////////////////////////////////////////////// */
 
@@ -40,10 +40,6 @@ void States (const Sweep *sweep, int beg, int end, Grid *grid)
   double **up = stateL->u;
   double **um = stateR->u-1;
 
-#if TIME_STEPPING != EULER
-  #error FLAT Reconstruction must be used with EULER integration only
-#endif
-  
   #if (INTERNAL_BOUNDARY == YES) && (INTERNAL_BOUNDARY_REFLECT == YES)
   FluidInterfaceBoundary(sweep, beg, end);
   #endif

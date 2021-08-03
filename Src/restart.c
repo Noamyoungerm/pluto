@@ -8,18 +8,18 @@
   version of the code.
 
   \author A. Mignone (mignone@to.infn.it)
-  \date   Aug 11, 2019
+  \date   Apr 15, 2021
 */
 /* ///////////////////////////////////////////////////////////////////// */
 #include "pluto.h"
 
 /* *********************************************************************  */
-void RestartFromFile (Runtime *ini, int nrestart, int type, Grid *grid)
+void RestartFromFile (const Data *d, Runtime *ini, int nrestart, int type, Grid *grid)
 /*!
  * Read input binary / hdf5 data.
  *
- * \param [in] ini       
- * \param [in] nrestart
+ * \param [in] ini        pointer to Runtime structure
+ * \param [in] nrestart   number of restart file
  * \param [in] type       specifies the output data type (type should be 
  *                        either DBL_OUTPUT or DBL_H5_OUTPUT).
  * \param [in] grid       pointer to an array of Grid structures
@@ -34,21 +34,22 @@ void RestartFromFile (Runtime *ini, int nrestart, int type, Grid *grid)
   Output *output;
   FILE   *fbin;
 
-/* ----------------------------------------------------------
-    Get the pointer to the output format specified by "type"
-   ---------------------------------------------------------- */
+/* --------------------------------------------------------
+   1. Get the pointer to the output format specified by
+      "type"
+   -------------------------------------------------------- */
 
   for (nv = 0; nv < MAX_OUTPUT_TYPES; nv++){
     output = ini->output + nv;
     if (output->type == type) break;
   }
 
-/* -------------------------------------------------------
-    Compare the endianity of the restart file (by reading
-    the corresponding entry in dbl.out or dbl.h5.out) 
-    with that of the current architecture.
-    Turn swap_endian to 1 if they're different.
-   ------------------------------------------------------- */
+/* --------------------------------------------------------
+   2. Compare the endianity of the restart file (by reading
+      the corresponding entry in dbl.out or dbl.h5.out) 
+      with that of the current architecture.
+      Turn swap_endian to 1 if they're different.
+   -------------------------------------------------------- */
 
   if (prank == 0){
     if (type == DBL_OUTPUT) {
@@ -84,9 +85,9 @@ void RestartFromFile (Runtime *ini, int nrestart, int type, Grid *grid)
   MPI_Bcast (&swap_endian, 1, MPI_INT, 0, MPI_COMM_WORLD);
   #endif
 
-/* ---------------------------------------------
-    Read restart.out and get Restart structure
-   --------------------------------------------- */
+/* --------------------------------------------------------
+   3. Read restart.out and get Restart structure
+   -------------------------------------------------------- */
 
   RestartGet (ini, nrestart, type, swap_endian);
   if (type == DBL_H5_OUTPUT){
@@ -99,9 +100,9 @@ void RestartFromFile (Runtime *ini, int nrestart, int type, Grid *grid)
   print ("> Restarting from file #%d (dbl)\n",output->nfile);
   single_file = strcmp(output->mode,"single_file") == 0;
   
-/* -----------------------------------------------------------------
-           For .dbl output, read data from disk
-   ----------------------------------------------------------------- */
+/* --------------------------------------------------------
+   4. For .dbl output, read data from disk
+   -------------------------------------------------------- */
 
   if (single_file){ 
     int  sz;
@@ -170,13 +171,16 @@ void RestartFromFile (Runtime *ini, int nrestart, int type, Grid *grid)
       FileClose (fbin, sz);
     }
   }
+
+  #ifdef FARGO
+  FARGO_Restart(d, output->dir, output->nfile, swap_endian, grid);
+  #endif
+
 }
 
 static int counter = -1;
-
 /* ********************************************************************* */
-void RestartGet (Runtime *ini, int nrestart, int out_type,
-                 int swap_endian)
+void RestartGet (Runtime *ini, int nrestart, int out_type, int swap_endian)
 /*!
  * Collect restart information needed for (potential)
  * later restarts.

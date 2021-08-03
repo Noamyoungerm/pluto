@@ -53,8 +53,7 @@ var searchData=
   ['getsahahfracs',['GetSahaHFracs',['../pvte__law_8c.html#aab2aba3afe6ee0a3a251067a72a62d76',1,'GetSahaHFracs(double, double, double *):&#160;pvte_law.c'],['../pvte__law__d_angelo_8c.html#aab2aba3afe6ee0a3a251067a72a62d76',1,'GetSahaHFracs(double, double, double *):&#160;pvte_law_dAngelo.c']]],
   ['gettemperature',['GetTemperature',['../rad__tools_8c.html#a08169f29865b607d46b4da938ce8bf41',1,'GetTemperature(double rho, double prs):&#160;rad_tools.c'],['../radiation_8h.html#ae6de862c61602054f2c58a52bb55a808',1,'GetTemperature(double, double):&#160;rad_tools.c']]],
   ['getuservar',['GetUserVar',['../set__output_8c.html#a46cbd2883dcc4c33e4f1fe3e74b8aae9',1,'set_output.c']]],
-  ['gforce_2ec',['gforce.c',['../_m_h_d_2gforce_8c.html',1,'']]],
-  ['gforce_2ec',['gforce.c',['../_r_m_h_d_2gforce_8c.html',1,'']]],
+  ['gforce_2ec',['gforce.c',['../_m_h_d_2gforce_8c.html',1,'(Global Namespace)'],['../_r_m_h_d_2gforce_8c.html',1,'(Global Namespace)']]],
   ['glm_2ec',['glm.c',['../glm_8c.html',1,'']]],
   ['glm_2eh',['glm.h',['../glm_8h.html',1,'']]],
   ['glm_5falpha',['GLM_ALPHA',['../glm_8h.html#aa17a379ad5696bad2b2b7147a38f2be7',1,'glm.h']]],
@@ -68,6 +67,5 @@ var searchData=
   ['global_5fvar',['global_var',['../doxy-comment_8c.html#a9211899aa9882cc0ed5fe7926921a294',1,'doxy-comment.c']]],
   ['globals_2eh',['globals.h',['../globals_8h.html',1,'']]],
   ['grid',['Grid',['../struct_grid.html',1,'']]],
-  ['guiding_5fcenter',['GUIDING_CENTER',['../particles_8h.html#a4201a4686d92ee66fe1af716f2f62f3d',1,'particles.h']]],
   ['general_20structure',['General Structure',['../index.html',1,'']]]
 ];

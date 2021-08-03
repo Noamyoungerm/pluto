@@ -4,6 +4,6 @@
 
 OBJ += particles_cr_feedback.o particles_cr_force.o               \
        particles_cr_predictor.o                                   \
-       particles_cr_update.o              
+       particles_cr_update.o particles_cr_update_gc.o              
 
 

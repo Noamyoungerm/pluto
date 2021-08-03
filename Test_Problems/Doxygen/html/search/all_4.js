@@ -1,6 +1,4 @@
 var searchData=
 [
-  ['get_5fnghost_2ec',['get_nghost.c',['../get__nghost_8c.html',1,'']]],
-  ['getjetvalues',['GetJetValues',['../_m_h_d_2_jet_2init_8c.html#af41ff28b40096fcede836401ec61e1a9',1,'init.c']]],
-  ['getnghost',['GetNghost',['../get__nghost_8c.html#a4ea1331454763509f74972d8e5451c25',1,'get_nghost.c']]]
+  ['fargo_5fsetvelocity',['FARGO_SetVelocity',['../_m_h_d_2_shearing___box_2_c_t___average_2_c___f_i_l_e_s_2init_8c.html#a1aaf201729d90f00407ee43fc7930002',1,'FARGO_SetVelocity(double x1, double x2):&#160;init.c'],['../_m_h_d_2_shearing___box_2_perrone_2init_8c.html#a1aaf201729d90f00407ee43fc7930002',1,'FARGO_SetVelocity(double x1, double x2):&#160;init.c'],['../_particles_2_dust_2_epicyclic_2init_8c.html#a1aaf201729d90f00407ee43fc7930002',1,'FARGO_SetVelocity(double x1, double x2):&#160;init.c']]]
 ];

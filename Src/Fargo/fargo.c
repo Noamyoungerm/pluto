@@ -359,8 +359,8 @@ void FARGO_ShiftSolution(Data_Arr U, Data_Arr Us, Grid *grid)
 /* -- pointer shortcuts -- */
 
   DIM_EXPAND(bx1 = Us[BX1s];  ,
-           bx2 = Us[BX2s];  ,
-           bx3 = Us[BX3s];)
+             bx2 = Us[BX2s];  ,
+             bx3 = Us[BX3s];)
 
 /* ----------------------------------------------
    6a. Compute:
@@ -557,7 +557,9 @@ void FARGO_ShiftSolution(Data_Arr U, Data_Arr Us, Grid *grid)
     #if GEOMETRY == CARTESIAN || GEOMETRY == POLAR
     bx1[k][j][i] -= (Ez[k][j][i] - Ez[k][j-1][i])/dphi;
     #elif GEOMETRY == SPHERICAL /* in spherical coordinates Ez = -Eth */
-    bx1[k][j][i] -= (Ez[k][j][i] - Ez[k-1][j][i])/dphi;
+//    bx1[k][j][i] -= (Ez[k][j][i] - Ez[k-1][j][i])/dphi;
+    double dmu = cos(x2m[j]) - cos(x2p[j]);
+    bx1[k][j][i] -= dx2[j]*sin(x2[j])/(dmu*dphi)*(Ez[k][j][i] - Ez[k-1][j][i]);
     #endif
   }
 
@@ -587,7 +589,7 @@ void FARGO_ShiftSolution(Data_Arr U, Data_Arr Us, Grid *grid)
   for (k = KBEG-1; k <= KEND; k++) JDOM_LOOP(j) IDOM_LOOP(i){
     #if GEOMETRY == CARTESIAN || GEOMETRY == POLAR
     bx3[k][j][i] += (Ex[k][j][i] - Ex[k][j-1][i])/dphi;
-    #elif GEOMETRY == SPHERICAL
+    #elif GEOMETRY == SPHERICAL /* Ez = -Eth, Ez = -Er */
     A1p = x1p[i]*x1p[i];
     A1m = x1m[i]*x1m[i];
     A2p = fabs(sin(x2p[j]));
@@ -595,7 +597,7 @@ void FARGO_ShiftSolution(Data_Arr U, Data_Arr Us, Grid *grid)
 
     bx3[k][j][i] += sin(x2[j])*(   A1p*Ez[k][j][i] 
                                 -  A1m*Ez[k][j][i-1])/(x1[i]*dx1[i])
-                       - (A2p*Ex[k][j][i] - A2m*Ex[k][j-1][i])/dx2[j];
+                    - (A2p*Ex[k][j][i] - A2m*Ex[k][j-1][i])/dx2[j];
     #endif
   }
 #endif
@@ -744,8 +746,8 @@ void FARGO_ParallelExchange (Data_Arr U, Data_Arr Us,
      for (nv = NVAR; nv--;  ) send_buf[nv][k][j][i] = U[k][JBEG+j][i][nv]; 
      #ifdef STAGGERED_MHD
       DIM_EXPAND(send_buf[BX1][k][j][i] = Us[BX1s][k][JBEG+j][i];  ,
-                                                            ;  ,
-               send_buf[BX3][k][j][i] = Us[BX3s][k][JBEG+j][i];)
+                                                                ;  ,
+                 send_buf[BX3][k][j][i] = Us[BX3s][k][JBEG+j][i];)
      #endif
 
     #elif GEOMETRY == SPHERICAL
@@ -753,8 +755,8 @@ void FARGO_ParallelExchange (Data_Arr U, Data_Arr Us,
      for (nv = NVAR; nv--;  ) send_buf[nv][k][j][i] = U[KBEG+k][j][i][nv]; 
      #ifdef STAGGERED_MHD
       DIM_EXPAND(send_buf[BX1][k][j][i] = Us[BX1s][KBEG+k][j][i];  ,
-               send_buf[BX2][k][j][i] = Us[BX2s][KBEG+k][j][i];  ,
-                                                            ;)
+                 send_buf[BX2][k][j][i] = Us[BX2s][KBEG+k][j][i];  ,
+                                                                ;)
      #endif
 
     #endif

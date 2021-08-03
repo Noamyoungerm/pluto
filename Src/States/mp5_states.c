@@ -7,7 +7,7 @@
   schemes of Suresh & Huynh (1997).
 
   \author A. Mignone (mignone@to.infn.it)
-  \date   Nov 12, 2020
+  \date   Jun 24, 2021
 
   \b References
      - "Accurate Monotonicity-Preserving Schemes with Runge-Kutta Time Stepping"
@@ -49,7 +49,7 @@ void States (const Sweep *sweep, int beg, int end, Grid *grid)
   static double *vpp;
 
 #if GEOMETRY != CARTESIAN
-  #error MP5 works only in Cartesian coordinates.
+//  #error MP5 works only in Cartesian coordinates.
 #endif
 
 /* -----------------------------------------------------------
@@ -120,6 +120,7 @@ void States (const Sweep *sweep, int beg, int end, Grid *grid)
       vp[i][RHO] = v[i][RHO] + 0.5*dv_lim;
       vm[i][RHO] = v[i][RHO] - 0.5*dv_lim;
     }
+    #if HAVE_ENERGY
     if (vp[i][PRS] < 0.0 || vm[i][PRS] < 0.0){
       dvp = v[i+1][PRS] - v[i][PRS];
       dvm = v[i][PRS]   - v[i-1][PRS];
@@ -127,6 +128,7 @@ void States (const Sweep *sweep, int beg, int end, Grid *grid)
       vp[i][PRS] = v[i][PRS] + 0.5*dv_lim;
       vm[i][PRS] = v[i][PRS] - 0.5*dv_lim;
     }
+    #endif
   }
   
 /* ----------------------------------------------

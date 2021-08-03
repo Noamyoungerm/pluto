@@ -35,21 +35,37 @@
   factor \f$\eta\f$  by letting
   \f$ \{\rho,\, p\} \to \eta^2\{\rho,\,p\},\, B \to \eta B \f$.
 
-  The different configurations are: 
-  - #01 and #02 are taken from  Del Zanna et al, A&A (2003) 400,397
-  - #03 and #04 are taken from  Mignone et al, ApJS (2007), 170, 228
+  The different configurations are given in the following table
 
-  - #05 and #06 are taken from Beckwith & Stone, ApJS (2011), 193, 6
-    Strongly magnetized case, sec. 4.6 (Fig. 14)
+  <CENTER>
+  Conf.|rho, p (in) | rho, p (out) |  B  | Dim  | Ref 
+  -----|------------| -------------|-----|------|------------
+  #01  | 1,  10^3   | 1.0, 0.01    | 4.0 |  2   | [dZBL2003], Sec 4.2
+  #02  | 1,  10^3   | 1.0, 0.01    | 4.0 |  2   | [dZBL2003], Sec 4.2
+  #03  | 0.01, 1    | 1.e-4, 3.e-5 | 1.0 |  3   | [Mig_etal2007], sec 5.7
+  #04  | 0.01, 1    | 1.e-4, 3.e-5 | 1.0 | 2(ax)| [Mig_etal2007, MB2006]
+  #05  | 0.01, 1    | 1.e-4, 5.e-3 | 1.0 |  2   | [BS2011], Sec 4.6
+  #06  | 0.01, 1    | 1.e-4, 5.e-3 | 1.0 |  2   | [BS2011]
+  #07  | 0.01, 1    | 1.e-4, 5.e-3 | 1.0 |  2   | [BS2011]
+  #08  | 0.01, 1    | 1.e-4, 5.e-4 | 0.1 |  2   | [Leis_etal2005, dZZBL2007]
+  </CENTER>
 
-  Strongly magnetized configurations can pass this test only by taking 
-  some precautions (e.g. correcting total energy with staggered magnetic 
-  field).
+  Some of the strongly magnetized configurations can pass this test
+  only by taking some precautions (e.g. correcting total energy with
+  staggered magnetic field).
 
   \image html rmhd_blast.02.jpg "Density map (in log scale) for configuration #02"
 
+  \b References
+     - [dZBL2003]      Del Zanna, Bucciantini, Londrillo. A&A (2003) 397
+     - [dZZBL2007]     Del Zanna et al, A&A (2007) 473, 11
+     - [Leis_etal2005] Leismann, et al. A&A (2005) 436, 503
+     - [Mig_etal2007]  Mignone et al, ApJS (2007), 170, 228
+     - [MB2006]        Mignone \& Bodo, MNRAS (2006) 368, 1040
+     - [BS2011]        Beckwith & Stone, ApJS (2011), 193, 6
+
   \authors A. Mignone (mignone@to.infn.it)\n
-  \date    Aug 09, 2019
+  \date    Jan 03, 2020\n
 */
 /* ///////////////////////////////////////////////////////////////////// */
 #include "pluto.h"
@@ -98,7 +114,6 @@ void Init (double *v, double x1, double x2, double x3)
   v[VX1] = v[VX2] = v[VX3] = 0.0;
   v[AX1] = v[AX2] = v[AX3] = 0.0;
 
-
   #if GEOMETRY == CARTESIAN
   v[BX1]  = Bx;
   v[BX2]  = By;
@@ -136,12 +151,7 @@ void Init (double *v, double x1, double x2, double x3)
 
 /* ********************************************************************* */
 void InitDomain (Data *d, Grid *grid)
-/*! 
- * Assign initial condition by looping over the computational domain.
- * Called after the usual Init() function to assign initial conditions
- * on primitive variables.
- * Value assigned here will overwrite those prescribed during Init().
- *
+/*
  *
  *********************************************************************** */
 {

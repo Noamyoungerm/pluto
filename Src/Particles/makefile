@@ -16,8 +16,3 @@ OBJ += particles_boundary.o particles_deposit.o particles_init.o  \
 
 HEADERS += particles.h
 
-
-
-
-
-

@@ -23,7 +23,7 @@
  #define wc 0.25
 #endif
 
-static void SolutionCorrect(Data *, timeStep *, Data_Arr, Data_Arr, double, Grid *);
+//static void SolutionCorrect(Data *, timeStep *, Data_Arr, Data_Arr, double, Grid *);
 
 /* ********************************************************************* */
 int AdvanceStep (Data *d, timeStep *Dts, Grid *grid)
@@ -38,6 +38,7 @@ int AdvanceStep (Data *d, timeStep *Dts, Grid *grid)
  *********************************************************************** */
 {
   int  i, j, k, nv;
+  int  err;
   static double  one_third = 1.0/3.0;
   static Data_Arr U0;
   static double ***Bs0[3];
@@ -146,9 +147,6 @@ int AdvanceStep (Data *d, timeStep *Dts, Grid *grid)
 
 /* CheckData (d, grid, "Before Predictor"); */
   UpdateStage(d, d->Uc, d->Vs, NULL, g_dt, Dts, grid);
-  #if TIME_STEP_CONTROL == YES
-  SolutionCorrect(d, Dts, U0, Bs0, g_dt, grid);
-  #endif
 
   #if RING_AVERAGE > 1
   RingAverageCons(d, grid);
@@ -168,7 +166,10 @@ int AdvanceStep (Data *d, timeStep *Dts, Grid *grid)
 #ifdef STAGGERED_MHD
   CT_AverageStaggeredFields (d->Vs, d->Uc, &box, grid);
 #endif
-  ConsToPrim3D (d->Uc, d->Vc, d->flag, &box);
+  err = ConsToPrim3D (d->Uc, d->Vc, d->flag, &box);
+  #if FAILSAFE == YES
+  if (err > 0) return err;
+  #endif
 
 /* -- 1e. Advance particles (w/ feedback) by a full step -- */
 
@@ -236,7 +237,10 @@ int AdvanceStep (Data *d, timeStep *Dts, Grid *grid)
 
 /* -- 2f. Convert to Primitive -- */
 
-  ConsToPrim3D (d->Uc, d->Vc, d->flag, &box);
+  err = ConsToPrim3D (d->Uc, d->Vc, d->flag, &box);
+  #if FAILSAFE == YES
+  if (err > 0) return err;
+  #endif
 
 #endif  /* TIME_STEPPING == RK2/RK3 */
 
@@ -287,7 +291,10 @@ int AdvanceStep (Data *d, timeStep *Dts, Grid *grid)
   #ifdef FARGO
   FARGO_ShiftSolution (d->Uc, d->Vs, grid);
   #endif
-  ConsToPrim3D (d->Uc, d->Vc, d->flag, &box);
+  err = ConsToPrim3D (d->Uc, d->Vc, d->flag, &box);
+  #if FAILSAFE == YES
+  if (err > 0) return err;
+  #endif
 #endif /* TIME_STEPPING == RK3 */
 
 /* --------------------------------------------------------
@@ -323,43 +330,43 @@ int AdvanceStep (Data *d, timeStep *Dts, Grid *grid)
   return 0; /* -- step has been achieved, return success -- */
 }
 
-#if TIME_STEP_CONTROL == YES
-/* ********************************************************************* */
-void SolutionCorrect(Data *d, timeStep *Dts,
-                     Data_Arr U0, Data_Arr Vs0, double dt0, Grid *grid)
-/*
- * Recompute the time step (dt) based on most recent call and compare it
- * with the actual time step dt0 being used for the present update.
- * If dt < rmax*dt0 then lower the time step to dt = rsafe*dt.
- *
- * This function should be called after the first predictor step in
- * RK time-stepping function.
- *
- *********************************************************************** */
-{
-  int i,j,k,nv;
-  Runtime *runtime = RuntimeGet();
-  double dt = NextTimeStep(Dts, runtime, grid);
-  double rmax  = 0.5;  // 0.65
-  double rsafe = 1.0;  // 0.9 
-
-  if (dt < rmax*dt0){
-    dt = rsafe*dt;
-    print ("! SolutionCorrect(): time step must be lowered (dt/dt0 = %f)\n", dt/dt0);
-    DOM_LOOP(k,j,i){
-      NVAR_LOOP(nv) {
-        double dU = (d->Uc[k][j][i][nv] - U0[k][j][i][nv]);
-        d->Uc[k][j][i][nv] = U0[k][j][i][nv] + dU*dt/dt0;
-      }
-    }
-    DIM_LOOP(nv) {
-      TOT_LOOP(k,j,i){
-        double dV = d->Vs[nv][k][j][i] - Vs0[nv][k][j][i];
-        d->Vs[nv][k][j][i] = Vs0[nv][k][j][i] + dV*dt/dt0;
-      }
-    }
-  }
-
-  g_dt = dt;
-}
-#endif
+//#if TIME_STEP_CONTROL == YES
+///* ********************************************************************* */
+//void SolutionCorrect(Data *d, timeStep *Dts,
+//                     Data_Arr U0, Data_Arr Vs0, double dt0, Grid *grid)
+///*
+// * Recompute the time step (dt) based on most recent call and compare it
+// * with the actual time step dt0 being used for the present update.
+// * If dt < rmax*dt0 then lower the time step to dt = rsafe*dt.
+// *
+// * This function should be called after the first predictor step in
+// * RK time-stepping function.
+// *
+// *********************************************************************** */
+//{
+//  int i,j,k,nv;
+//  Runtime *runtime = RuntimeGet();
+//  double dt = NextTimeStep(Dts, runtime, grid);
+//  double rmax  = 0.5;  // 0.65
+//  double rsafe = 1.0;  // 0.9 
+//
+//  if (dt < rmax*dt0){
+//    dt = rsafe*dt;
+//    print ("! SolutionCorrect(): time step must be lowered (dt/dt0 = %f)\n", dt/dt0);
+//    DOM_LOOP(k,j,i){
+//      NVAR_LOOP(nv) {
+//        double dU = (d->Uc[k][j][i][nv] - U0[k][j][i][nv]);
+//        d->Uc[k][j][i][nv] = U0[k][j][i][nv] + dU*dt/dt0;
+//      }
+//    }
+//    DIM_LOOP(nv) {
+//      TOT_LOOP(k,j,i){
+//        double dV = d->Vs[nv][k][j][i] - Vs0[nv][k][j][i];
+//        d->Vs[nv][k][j][i] = Vs0[nv][k][j][i] + dV*dt/dt0;
+//      }
+//    }
+//  }
+//
+//  g_dt = dt;
+//}
+//#endif

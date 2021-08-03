@@ -3,9 +3,32 @@
   \file 
   \brief Single CR particle gyration (and drift) test.
 
+  Test particle gyration in EM fields.
+
+  The time steps for partciles and fluid scale as
+
+    dt_pa = Na*dx/vp        (if limited by translation)
+    dt_pg = 1/(Ng*Omega)     (if limited by gyration)
+    dt_f  = Ca*dx/lambda
+
+  where lambda = B/sqrt(rho)  (when p << 1), Omega = q*B/(m*c), Ng
+  and Na are some integers, Ca is the Courant number.
+ 
+  We set B = H*dx so the fluid time step is approximately the same
+  at any resolution:
+
+    dt_pa = Na*dx/vp
+    dt_pg = 1/(Ng*H*dx*q/mc)
+    dt_f  = Ca*sqrt(rho)/H
+
+  The ratio between particle and fluid time steps is:
+
+    dt_pa / dt_f = Na*dx*H/(vp*Ca*sqrt(rho))
+    dt_pg / dt_f = mc/(Ng*q*Ca*sqrt(rho)*dx)
+
   \author A. Mignone (mignone@to.infn.it)
 
-  \date   May 07, 2020
+  \date   March 04, 2021
 
   \b References: \n
    - "A PARTICLE MODULE FOR THE PLUTO CODE: I - AN IMPLEMENTATION OF THE
@@ -17,28 +40,6 @@
 /* ********************************************************************* */
 void Init (double *v, double x1, double x2, double x3)
 /*! 
- *  Test particle gyration in EM fields.
- *
- *  The time steps for partciles and fluid scale as
- *
- *    dt_pa = Na*dx/vp        (if limited by translation)
- *    dt_pg = 1/(Ng*Omega)     (if limited by gyration)
- *    dt_f  = Ca*dx/lambda
- *
- *  where lambda = B/sqrt(rho)  (when p << 1), Omega = q*B/(m*c), Ng
- *  and Na are some integers, Ca is the Courant number.
- * 
- *  We set B = H*dx so the fluid time step is approximately the same
- *  at any resolution:
- *
- *    dt_pa = Na*dx/vp
- *    dt_pg = 1/(Ng*H*dx*q/mc)
- *    dt_f  = Ca*sqrt(rho)/H
- *
- *  The ratio between particle and fluid time steps is:
- *
- *    dt_pa / dt_f = Na*dx*H/(vp*Ca*sqrt(rho))
- *    dt_pg / dt_f = mc/(Ng*q*Ca*sqrt(rho)*dx)
  *
  *********************************************************************** */
 {

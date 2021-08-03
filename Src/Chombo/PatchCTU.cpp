@@ -12,7 +12,7 @@ void PatchPluto::advanceStep(FArrayBox&       a_U,
                              FArrayBox&       a_Utmp,
                              const FArrayBox& a_dV,
                              FArrayBox&  split_tags,
-                             BaseFab<unsigned char>& a_Flags,
+                             BaseFab<uint16_t>& a_Flags,
                              FluxBox&         a_F,
                              timeStep        *Dts,
                              const Box&       UBox, 
@@ -34,7 +34,7 @@ void PatchPluto::advanceStep(FArrayBox&       a_U,
   int nbeg, nend, ntot; 
   int    errp, errm, errh;
 
-  static unsigned char *flagp, *flagm;  // these should go inside sweep !!
+  static uint16_t *flagp, *flagm;  // these should go inside sweep !!
 
   static Sweep sweep;
 
@@ -108,7 +108,7 @@ void PatchPluto::advanceStep(FArrayBox&       a_U,
 
     d.Vc   = ARRAY_4D(NVAR, NX3_MAX, NX2_MAX, NX1_MAX, double);
     d.Uc   = ARRAY_4D(NX3_MAX, NX2_MAX, NX1_MAX, NVAR, double);
-    d.flag = ARRAY_3D(NX3_MAX, NX2_MAX, NX1_MAX, unsigned char);
+    d.flag = ARRAY_3D(NX3_MAX, NX2_MAX, NX1_MAX, uint16_t);
     #if RESISTIVITY
     d.J    = ARRAY_4D(3,NX3_MAX, NX2_MAX, NX1_MAX, double);
     #endif
@@ -116,21 +116,21 @@ void PatchPluto::advanceStep(FArrayBox&       a_U,
     d.Tc   = ARRAY_3D(NX3_MAX, NX2_MAX, NX1_MAX, double);
     #endif
 
-    flagp = ARRAY_1D(NMAX_POINT, unsigned char);
-    flagm = ARRAY_1D(NMAX_POINT, unsigned char);
+    flagp = ARRAY_1D(NMAX_POINT, uint16_t);
+    flagm = ARRAY_1D(NMAX_POINT, uint16_t);
     u     = ARRAY_2D(NMAX_POINT, NVAR, double);
     
     Uh  = ARRAY_4D(NX3_MAX, NX2_MAX, NX1_MAX, NVAR, double);
     Vc0 = ARRAY_4D(NX3_MAX, NX2_MAX, NX1_MAX, NVAR, double);
 
     DIM_EXPAND(Um[IDIR] = ARRAY_4D(NX3_MAX, NX2_MAX, NX1_MAX, NVAR, double);
-             Up[IDIR] = ARRAY_4D(NX3_MAX, NX2_MAX, NX1_MAX, NVAR, double);  ,
+              Up[IDIR] = ARRAY_4D(NX3_MAX, NX2_MAX, NX1_MAX, NVAR, double);  ,
   
-             Um[JDIR] = ARRAY_4D(NX3_MAX, NX2_MAX, NX1_MAX, NVAR, double);
-             Up[JDIR] = ARRAY_4D(NX3_MAX, NX2_MAX, NX1_MAX, NVAR, double);  ,
+              Um[JDIR] = ARRAY_4D(NX3_MAX, NX2_MAX, NX1_MAX, NVAR, double);
+              Up[JDIR] = ARRAY_4D(NX3_MAX, NX2_MAX, NX1_MAX, NVAR, double);  ,
 
-             Um[KDIR] = ARRAY_4D(NX3_MAX, NX2_MAX, NX1_MAX, NVAR, double);
-             Up[KDIR] = ARRAY_4D(NX3_MAX, NX2_MAX, NX1_MAX, NVAR, double);)
+              Um[KDIR] = ARRAY_4D(NX3_MAX, NX2_MAX, NX1_MAX, NVAR, double);
+              Up[KDIR] = ARRAY_4D(NX3_MAX, NX2_MAX, NX1_MAX, NVAR, double);)
 
     rhs = ARRAY_4D(NX3_MAX, NX2_MAX, NX1_MAX, NVAR, double);
 

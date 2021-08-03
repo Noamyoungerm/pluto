@@ -9,11 +9,11 @@
  In case of evolution with spectra, the initial spectral profile is also
  prescribed here.
  
- \authors A. Mignone (mignone@ph.unito.it)\n
+ \authors A. Mignone (mignone@to.infn.it)\n
           B. Vaidya (bvaidya@unito.it)\n
           D. Mukherjee
           
- \date    July 24, 2018
+ \date    March 21, 2021
  */
 /* ///////////////////////////////////////////////////////////////////// */
 #include "pluto.h"
@@ -92,13 +92,40 @@ void Particles_Init(Data *d, Grid *grid)
         for (nc = 0; nc < PARTICLES_LP_NCOLORS; nc++) p.color[nc] = 0.0;
         #endif
 
-     /* -- Velocity distribution -- */
-
         #if PARTICLES == PARTICLES_CR
+
+      /* -- Random distribution -- */
+
         p.speed[IDIR] = RandomNumber(-1,1);
         p.speed[JDIR] = RandomNumber(-1,1);
         p.speed[KDIR] = RandomNumber(-1,1);
-        p.rho         = 1.e-3/np_cell;
+
+      /* -- Gaussian Distribution -- */
+  
+        double mu    = 0.0;
+        double sigma = 5.0;
+        p.speed[IDIR] = GaussianRandomNumber(mu, sigma);
+        p.speed[JDIR] = GaussianRandomNumber(mu, sigma);
+        p.speed[KDIR] = GaussianRandomNumber(mu, sigma);    
+
+      /* -- Power law distribution (gamma^-q) based on inversion
+            of the cumulative distribution function,  -- */
+/*
+        double q   = 2.0;
+        double xi  = RandomNumber(0,1);
+        double th  = 2.0*CONST_PI*RandomNumber(0,1);
+        double phi = 2.0*CONST_PI*RandomNumber(0,1);
+
+        double lor1 = 1.0;
+        double lor2 = 1.e3;
+        double f    = pow(lor1,1.0-q) + xi*(pow(lor2,1.0-q) - pow(lor1,1.-q));
+        double lor  = pow(f, 1.0/(1.0 - q));
+        double u    = sqrt(lor*lor - 1.0);
+        p.speed[IDIR] = u*sin(th)*cos(phi);
+        p.speed[JDIR] = u*sin(th)*sin(phi);
+        p.speed[KDIR] = u*cos(phi);
+*/
+        p.mass = 1.e-3/np_cell;
         #endif
         Particles_Insert (&p, d, PARTICLES_CREATE, grid);
       }

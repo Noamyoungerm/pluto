@@ -202,7 +202,7 @@ void PatchPluto::setGrid(const Box&  a_box, Grid *grid, FArrayBox& a_dV)
 
 // compute cell volumes (dV/m_dx^3) and cylindrical radius
 
-  #if GEOMETRY != CARTESIAN
+#if GEOMETRY != CARTESIAN
   double mdx_dim = DIM_EXPAND(m_dx, *m_dx, *m_dx);
 
   NX1_TOT = grid->np_tot[IDIR];
@@ -220,11 +220,10 @@ void PatchPluto::setGrid(const Box&  a_box, Grid *grid, FArrayBox& a_dV)
     #if GEOMETRY == POLAR || GEOMETRY == CYLINDRICAL
     dV[1][k][j][i] = grid->x[IDIR][i];
     #else
-    dV[1][k][j][i] = DIM_EXPAND(grid->x[IDIR][i], *= sin(grid->x[JDIR][j]);
+    dV[1][k][j][i] = DIM_EXPAND(grid->x[IDIR][i], *sin(grid->x[JDIR][j], *1.0);
     #endif
     #endif
   }}}
-
 
   for (i = 0; i < CHOMBO_NDV; i++) FreeArrayMap(dV[i]);
 #endif /* != CARTESIAN */

@@ -27,7 +27,7 @@
   RMHD_PressureFix() function is used.
 
   \author A. Mignone (mignone@to.infn.it)
-  \date   July 1, 2019
+  \date   Nov 27, 2020
 */
 /* ///////////////////////////////////////////////////////////////////// */
 #include "pluto.h"
@@ -119,8 +119,7 @@ void PrimToCons (double **uprim, double **ucons, int beg, int end)
 }
 
 /* ********************************************************************* */
-int ConsToPrim (double **ucons, double **uprim, int beg, int end, 
-                unsigned char *flag)
+int ConsToPrim (double **ucons, double **uprim, int beg, int end, uint16_t *flag)
 /*!
  * Convert from conservative to primitive variables.
  *
@@ -140,12 +139,12 @@ int ConsToPrim (double **ucons, double **uprim, int beg, int end,
  *
  *********************************************************************** */
 {
-  int    i, nv, err, ifail;
+  int    i, nv, err;
+  int    ifail = 0;
   int    use_entropy, use_energy=1;
   double *u, *v, scrh, w_1;
   Map_param par;
 
-  ifail = 0;
   for (i = beg; i <= end; i++) {
 
     u = ucons[i];
@@ -172,6 +171,7 @@ int ConsToPrim (double **ucons, double **uprim, int beg, int end,
       Where (i, NULL);
       u[RHO]   = g_smallDensity;
       flag[i] |= FLAG_CONS2PRIM_FAIL;
+      flag[i] |= FLAG_NEGATIVE_DENSITY;
       ifail    = 1;
     }
 
@@ -182,7 +182,7 @@ int ConsToPrim (double **ucons, double **uprim, int beg, int end,
       )
       u[ENG]   = 1.e-5;
       flag[i] |= FLAG_CONS2PRIM_FAIL;
-      ifail    = 1;
+//      ifail    = 1;
     }
 
     #if RADIATION
@@ -193,7 +193,7 @@ int ConsToPrim (double **ucons, double **uprim, int beg, int end,
       )			
       u[ENR]   = RADIATION_MIN_ERAD;
       flag[i] |= FLAG_CONS2PRIM_FAIL;
-      ifail    = 1;
+//      ifail    = 1;
     }
     #endif
 
@@ -218,7 +218,7 @@ int ConsToPrim (double **ucons, double **uprim, int beg, int end,
         }
         u[ENTR]  = par.sigma_c;
         flag[i] |= FLAG_CONS2PRIM_FAIL;
-        ifail    = 1;
+//        ifail    = 1;
       }
       u[ENG] = par.E;  /* Redefine energy */
     } 
@@ -239,11 +239,12 @@ int ConsToPrim (double **ucons, double **uprim, int beg, int end,
           printLog ("! ConsToPrim(): RMHD_PressureFix() failed,");
           printLog (" err code = %d;", err);
           Where(i,NULL);
+          flag[i] |= FLAG_CONS2PRIM_FAIL;
 //          QUIT_PLUTO(1);
         }
         u[ENG]   = par.E;
         flag[i] |= FLAG_CONS2PRIM_FAIL;
-        ifail    = 1;
+//        ifail    = 1;
       }
       #if ENTROPY_SWITCH     
       u[ENTR] = par.sigma_c;  /* Redefine entropy */
@@ -286,13 +287,12 @@ int ConsToPrim (double **ucons, double **uprim, int beg, int end,
     v[PSI_GLM] = u[PSI_GLM]; 
     #endif
 
-	  #if RADIATION
-		v[ENR] = u[ENR];
-		v[FR1] = u[FR1]; 
+    #if RADIATION
+    v[ENR] = u[ENR];
+    v[FR1] = u[FR1]; 
     v[FR2] = u[FR2]; 
     v[FR3] = u[FR3];
-	  #endif
-
+    #endif
   }
   return ifail;
 }

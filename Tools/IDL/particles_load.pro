@@ -31,10 +31,11 @@
 ;
 ; LAST MODIFIED:
 ;
-;  Nov 19, 2019 by D. Mukherjee & A. Mignone (dipanjan.mukherjee@unito.it)
+;  Mar 08, 2021 by D. Mukherjee & A. Mignone (dipanjan.mukherjee@unito.it)
 ;
 ;-
-PRO PARTICLES_BINARY_LOAD, fname, FLOAT=FLOAT, SLICE=SLICE, SILENT=SILENT, err, TOTFILE=totfile, LP=LP
+PRO PARTICLES_BINARY_LOAD, fname, FLOAT=FLOAT, SLICE=SLICE, SILENT=SILENT, err, $
+                           TOTFILE=totfile, LP=LP
 
   COMMON PLUTO_GRID
   COMMON PLUTO_VAR
@@ -227,11 +228,11 @@ PRO PARTICLES_BINARY_LOAD, fname, FLOAT=FLOAT, SLICE=SLICE, SILENT=SILENT, err, 
 
     ; Color can be 1 element or multiple, hence accounted for differently
     IF (field_names[nf] EQ "color") THEN BEGIN  
-                   IF (field_dim[nf] GT 1) THEN BEGIN
-                      particles.color[0:field_dim[nf]-1] = REFORM(Q[ibeg:iend,*]); 
-                   ENDIF ELSE BEGIN
-                      particles.color = REFORM(Q[ibeg:iend,*]);
-                   ENDELSE
+      IF (field_dim[nf] GT 1) THEN BEGIN
+        particles.color[0:field_dim[nf]-1] = REFORM(Q[ibeg:iend,*]); 
+      ENDIF ELSE BEGIN
+        particles.color = REFORM(Q[ibeg:iend,*]);
+      ENDELSE
     ENDIF 
 
   ENDFOR
@@ -296,7 +297,7 @@ PRO PARTICLES_VTK_LOAD, fname, SILENT=SILENT, err
                                        vx1: 0.d0, vx2: 0.d0, vx3: 0.d0,  $
                                        tinj:0.d0, color:0.d0}
 
-  PRINT,"> Reading vtk data format"
+  IF (NOT KEYWORD_SET(SILENT)) THEN PRINT,"> Reading vtk data format"
 
 ; ---------------------------------------------------------
 ; 1. Open file for reading
@@ -486,93 +487,93 @@ PRO PARTICLES_LOAD, nout, nchunk=nchunk, dir=dir, SILENT=SILENT, FLOAT=FLOAT, FL
 ; ---------------------------------------------------------
 
   IF (NOT isa(nchunk)) THEN BEGIN
-     totfile = 1 ; Set Default to 1
+    totfile = 1 ; Set Default to 1
 
-     ; -------- Load the zero chunk. This gives totfiles --------
-     str_nout = STRCOMPRESS(STRING(nout,FORMAT='(I4.4)'))
-     fname  = dir+"/particles."+str_nout
+    ; -------- Load the zero chunk. This gives totfiles --------
+    str_nout = STRCOMPRESS(STRING(nout,FORMAT='(I4.4)'))
+    fname  = dir+"/particles."+str_nout
 
-     IF (KEYWORD_SET(FLOAT) OR KEYWORD_SET(FLT)) THEN BEGIN
+    IF (KEYWORD_SET(FLOAT) OR KEYWORD_SET(FLT)) THEN BEGIN
+      IF (KEYWORD_SET(LP)) THEN BEGIN
+        fname += "_ch00.flt"
+        PARTICLES_BINARY_LOAD,fname,/FLOAT,SILENT=SILENT, err, totfile=totfile,/LP
+      ENDIF ELSE BEGIN
+        fname += ".flt"
+        PARTICLES_BINARY_LOAD,fname,/FLOAT,SILENT=SILENT, err, totfile=totfile
+      ENDELSE
+    ENDIF ELSE IF (KEYWORD_SET(VTK)) THEN BEGIN
+      PARTICLES_VTK_LOAD,fname+".vtk",SILENT=SILENT, err
+    ENDIF ELSE BEGIN       
+      IF (KEYWORD_SET(LP)) THEN BEGIN
+        fname += "_ch00.dbl"
+        PARTICLES_BINARY_LOAD,fname,SILENT=SILENT, err, totfile=totfile,/LP
+      ENDIF ELSE BEGIN
+        fname += ".dbl"
+        PARTICLES_BINARY_LOAD,fname,SILENT=SILENT, err, totfile=totfile
+      ENDELSE
+    ENDELSE 
+    dum = particles  ; ---- temporary struture
+
+    FOR nch = 1, totfile-1 DO BEGIN ; Loop over all other files
+      str_nout = STRCOMPRESS(STRING(nout,FORMAT='(I4.4)'))
+      str_nch   = STRCOMPRESS(STRING(nch,FORMAT='(I02)'))
+      fname  = dir+"/particles."+str_nout
+
+      IF (KEYWORD_SET(FLOAT) OR KEYWORD_SET(FLT)) THEN BEGIN
         IF (KEYWORD_SET(LP)) THEN BEGIN
-            fname += "_ch00.flt"
-            PARTICLES_BINARY_LOAD,fname,/FLOAT,SILENT=SILENT, err, totfile=totfile,/LP
+          fname += "_ch"+str_nch+".flt"
         ENDIF ELSE BEGIN
-            fname += ".flt"
-            PARTICLES_BINARY_LOAD,fname,/FLOAT,SILENT=SILENT, err, totfile=totfile
+          fname += ".flt"
         ENDELSE
-     ENDIF ELSE IF (KEYWORD_SET(VTK)) THEN BEGIN
-           PARTICLES_VTK_LOAD,fname+".vtk",SILENT=SILENT, err
-     ENDIF ELSE BEGIN       
+        PARTICLES_BINARY_LOAD,fname,/FLOAT,SILENT=SILENT, err
+      ENDIF ELSE BEGIN
         IF (KEYWORD_SET(LP)) THEN BEGIN
-           fname += "_ch00.dbl"
-           PARTICLES_BINARY_LOAD,fname,SILENT=SILENT, err, totfile=totfile,/LP
+          fname += "_ch"+str_nch+".dbl"
         ENDIF ELSE BEGIN
-            fname += ".dbl"
-            PARTICLES_BINARY_LOAD,fname,SILENT=SILENT, err, totfile=totfile
+          fname += ".dbl"
         ENDELSE
-     ENDELSE 
-     dum = particles  ; ---- temporary struture
-
-     FOR nch = 1, totfile-1 DO BEGIN ; Loop over all other files
-          str_nout = STRCOMPRESS(STRING(nout,FORMAT='(I4.4)'))
-          str_nch   = STRCOMPRESS(STRING(nch,FORMAT='(I02)'))
-          fname  = dir+"/particles."+str_nout
-
-          IF (KEYWORD_SET(FLOAT) OR KEYWORD_SET(FLT)) THEN BEGIN
-             IF (KEYWORD_SET(LP)) THEN BEGIN
-                fname += "_ch"+str_nch+".flt"
-          ENDIF ELSE BEGIN
-             fname += ".flt"
-          ENDELSE
-             PARTICLES_BINARY_LOAD,fname,/FLOAT,SILENT=SILENT, err
-          ENDIF ELSE BEGIN
-          IF (KEYWORD_SET(LP)) THEN BEGIN
-             fname += "_ch"+str_nch+".dbl"
-          ENDIF ELSE BEGIN
-             fname += ".dbl"
-          ENDELSE
-             PARTICLES_BINARY_LOAD,fname,SILENT=SILENT, err
-          ENDELSE  
-
-          dum = [dum,particles] ;---concatenate
-     ENDFOR
+        PARTICLES_BINARY_LOAD,fname,SILENT=SILENT, err
+      ENDELSE  
+  
+      dum = [dum,particles] ;---concatenate
+    ENDFOR
 
      particles = dum
      dum = 0 ;---free dummy struct
   ENDIF ELSE BEGIN 
 
-     ; -------- Load for a individual nchunk -----------
-     str_nout = STRCOMPRESS(STRING(nout,FORMAT='(I4.4)'))
-     str_nch   = STRCOMPRESS(STRING(nchunk,FORMAT='(I02)'))
-     fname  = dir+"/particles."+str_nout
+    ; -------- Load for a individual nchunk -----------
+    str_nout = STRCOMPRESS(STRING(nout,FORMAT='(I4.4)'))
+    str_nch   = STRCOMPRESS(STRING(nchunk,FORMAT='(I02)'))
+    fname  = dir+"/particles."+str_nout
 
-        IF (KEYWORD_SET(FLOAT) OR KEYWORD_SET(FLT)) THEN BEGIN
-	   IF (KEYWORD_SET(LP)) THEN BEGIN
-               fname += "_ch"+str_nch+".flt"
-	   ENDIF ELSE BEGIN
-               fname += ".flt"
-	   ENDELSE
-           PARTICLES_BINARY_LOAD,fname,/FLOAT,SILENT=SILENT, err
-        ENDIF ELSE BEGIN
-	   IF (KEYWORD_SET(LP)) THEN BEGIN
-              fname += "_ch"+str_nch+".dbl"
-	   ENDIF ELSE BEGIN
-               fname += ".dbl"
-	   ENDELSE
-           PARTICLES_BINARY_LOAD,fname,SILENT=SILENT, err
-        ENDELSE 
+    IF (KEYWORD_SET(FLOAT) OR KEYWORD_SET(FLT)) THEN BEGIN
+      IF (KEYWORD_SET(LP)) THEN BEGIN
+        fname += "_ch"+str_nch+".flt"
+      ENDIF ELSE BEGIN
+        fname += ".flt"
+      ENDELSE
+      PARTICLES_BINARY_LOAD,fname,/FLOAT,SILENT=SILENT, err
+    ENDIF ELSE BEGIN
+      IF (KEYWORD_SET(LP)) THEN BEGIN
+        fname += "_ch"+str_nch+".dbl"
+      ENDIF ELSE BEGIN
+        fname += ".dbl"
+      ENDELSE
+      PARTICLES_BINARY_LOAD,fname,SILENT=SILENT, err
+    ENDELSE 
   ENDELSE  
 
-
-   IF (~KEYWORD_SET(SILENT)) THEN BEGIN
-      PRINT,"> Data in structure: particles "
-   ENDIF
+  IF (~KEYWORD_SET(SILENT)) THEN BEGIN
+    PRINT,"> Data in structure: particles "
+  ENDIF
  
   IF (err NE 0) THEN RETURN
 
 ;  PRINT,"Function took ",SYSTIME(1)-T0, "seconds"
 
-  PRINT, "> Used memory:", $
-    STRCOMPRESS(STRING(MEMORY(/CURRENT,/L64)/1024.d0/1024.d0))," Mb"
-
+  IF (NOT KEYWORD_SET(SILENT)) THEN BEGIN
+    PRINT, "> Used memory:", $
+      STRCOMPRESS(STRING(MEMORY(/CURRENT,/L64)/1024.d0/1024.d0))," Mb"
+  ENDIF
 END

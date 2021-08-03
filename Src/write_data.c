@@ -18,7 +18,7 @@
   \authors A. Mignone (mignone@to.infn.it)\n
            G. Muscianisi (g.muscianisi@cineca.it)
 
-  \date   Aug 21, 2019
+  \date   Apr 15, 2021
 */
 /* ///////////////////////////////////////////////////////////////////// */
 #include "pluto.h"
@@ -44,7 +44,7 @@ void WriteData (const Data *d, Output *output, Grid *grid)
   double units[MAX_OUTPUT_VARS]; 
   float ***Vpt3;
   #ifdef FARGO
-  static double ***vphi_bck;
+  static double ***vphi_res;
   double **wA = FARGO_Velocity();
   #endif
   void *Vpt;
@@ -78,16 +78,16 @@ void WriteData (const Data *d, Output *output, Grid *grid)
   }
 
 /* --------------------------------------------------------
-   2. With FARGO, we can output total or residual velocity 
+   2. With FARGO, we can output total or residual velocity
+      whenever output is not .dbl.
    -------------------------------------------------------- */
 
-#if (defined FARGO) &&  (FARGO_OUTPUT_VTOT == YES)
-  if (vphi_bck == NULL) vphi_bck = ARRAY_3D(NX3_TOT, NX2_TOT, NX1_TOT, double);
-  TOT_LOOP(k,j,i) {
-    vphi_bck[k][j][i] = d->Vc[VX1+SDIR][k][j][i]; /* Backup residual */
-  }  
-
+#ifdef FARGO
+  #if FARGO_OUTPUT_VTOT == YES
+  if (vphi_res == NULL) vphi_res = ARRAY_3D(NX3_TOT, NX2_TOT, NX1_TOT, double);
+  TOT_LOOP(k,j,i) vphi_res[k][j][i] = d->Vc[VX1+SDIR][k][j][i]; 
   FARGO_ComputeTotalVelocity (d, d->Vc[VX1+SDIR], grid);
+  #endif
 #endif
 
 /* --------------------------------------------------------
@@ -96,7 +96,9 @@ void WriteData (const Data *d, Output *output, Grid *grid)
 
   if (output->type == DBL_OUTPUT) {
 
-  /* ------------------------------------------------------------------- */
+  /* -------------------------------------------------------------------
+     3a. DBL Output
+     ------------------------------------------------------------------- */
   /*! - \b DBL output:
         Double-precision data files can be written using single or
         multiple file mode. 
@@ -132,17 +134,17 @@ void WriteData (const Data *d, Output *output, Grid *grid)
         if (!output->dump_var[nv]) continue;
 
         if      (output->stag_var[nv] == -1) {  /* -- cell-centered data -- */
-          sz = SZ;
+          sz  = SZ;
           Vpt = (void *)output->V[nv][0][0];
         } else if (output->stag_var[nv] == 0) { /* -- x-staggered data -- */
           sz  = SZ_stagx;
           Vpt = (void *)(output->V[nv][0][0]-1);
         } else if (output->stag_var[nv] == 1) { /* -- y-staggered data -- */
-          sz = SZ_stagy;
+          sz  = SZ_stagy;
           Vpt = (void *)output->V[nv][0][-1];
         } else if (output->stag_var[nv] == 2) { /* -- z-staggered data -- */
-           sz = SZ_stagz;
-           Vpt = (void *)output->V[nv][-1][0];
+          sz  = SZ_stagz;
+          Vpt = (void *)output->V[nv][-1][0];
         }
         #ifdef PARALLEL
         fbin = FileOpen (filename, sz, "w");
@@ -176,8 +178,8 @@ void WriteData (const Data *d, Output *output, Grid *grid)
           sz = SZ_stagy;
           Vpt = (void *)output->V[nv][0][-1];
         } else if (output->stag_var[nv] == 2) { /* -- z-staggered data -- */
-           sz = SZ_stagz;
-           Vpt = (void *)output->V[nv][-1][0];
+          sz = SZ_stagz;
+          Vpt = (void *)output->V[nv][-1][0];
         }
         fbin = FileOpen (filename, sz, "w");
         FileWriteData (Vpt, dsize, sz, fbin, output->stag_var[nv]);
@@ -185,11 +187,21 @@ void WriteData (const Data *d, Output *output, Grid *grid)
       }
     }
 
+  /* --------------------------------------------
+     With FARGO, write23D array for orbital vel.
+     to separate file.   
+     Needed also for restarting purposes.
+     -------------------------------------------- */
+
+    #ifdef FARGO
+    FARGO_Write(d, output->dir, output->nfile, grid);
+    #endif
+
   } else if (output->type == FLT_OUTPUT) {
 
-  /* ----------------------------------------------------------
-                 FLT output for cell-centered data
-     ---------------------------------------------------------- */
+  /* ------------------------------------------------------
+     3b. FLT output for cell-centered data
+     ------------------------------------------------------ */
 
     single_file = strcmp(output->mode,"single_file") == 0;
 
@@ -229,7 +241,7 @@ BOV_Header(output, filename);
   }else if (output->type == DBL_H5_OUTPUT || output->type == FLT_H5_OUTPUT){
 
   /* ------------------------------------------------------
-       HDF5 (static grid) output (single/double precision)
+     3c.  HDF5 (static grid) output (single/double precision)
      ------------------------------------------------------ */
 
     #ifdef USE_HDF5 
@@ -242,7 +254,9 @@ BOV_Header(output, filename);
 
   }else if (output->type == VTK_OUTPUT) { 
 
-  /* ------------------------------------------------------------------- */
+  /* -------------------------------------------------------------------
+     3d. VTK Output
+     ------------------------------------------------------------------- */
   /*! - \b VTK output:  
       in order to enable parallel writing, files must be closed and
       opened again for scalars, since the distributed array descriptors 
@@ -324,7 +338,7 @@ BOV_Header(output, filename);
   }else if (output->type == TAB_OUTPUT) { 
 
   /* ------------------------------------------------------
-               Tabulated (ASCII) output
+     3e. Tabulated (ASCII) output
      ------------------------------------------------------ */
 
     single_file = YES;
@@ -402,19 +416,17 @@ BOV_Header(output, filename);
 
 /* -- Copy residual back onto main array -- */
 
-#if (defined FARGO) &&  (FARGO_OUTPUT_VTOT == YES)
-  TOT_LOOP(k,j,i) {
-    d->Vc[VX1+SDIR][k][j][i] = vphi_bck[k][j][i];
-  }  
-#endif
+  #if (defined FARGO) &&  (FARGO_OUTPUT_VTOT == YES)
+  TOT_LOOP(k,j,i) d->Vc[VX1+SDIR][k][j][i] = vphi_res[k][j][i];
+  #endif
 
-#ifdef PARALLEL
+  #ifdef PARALLEL
   MPI_Barrier (MPI_COMM_WORLD);
   if (prank == 0){
     time(&tend);
     print ("  [%5.2f sec ]\n",difftime(tend,tbeg));
   }
-#endif
+  #endif
 
 }
 

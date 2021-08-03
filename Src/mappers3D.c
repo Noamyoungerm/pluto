@@ -13,7 +13,7 @@
 #include "pluto.h"
 
 /* ********************************************************************* */
-void ConsToPrim3D (Data_Arr U, Data_Arr V, unsigned char ***flag, RBox *box)
+int ConsToPrim3D (Data_Arr U, Data_Arr V, uint16_t ***flag, RBox *box)
 /*!
  *  Convert a 3D array of conservative variables \c U to
  *  an array of primitive variables \c V.
@@ -30,7 +30,8 @@ void ConsToPrim3D (Data_Arr U, Data_Arr V, unsigned char ***flag, RBox *box)
  *
  *********************************************************************** */
 {
-  int   i, j, k, nv, err;
+  int   i, j, k, nv;
+  int   err = 0, err_loc;
   int   ibeg, iend, jbeg, jend, kbeg, kend;
   int   current_dir;
   static double **v, **u;
@@ -67,7 +68,8 @@ void ConsToPrim3D (Data_Arr U, Data_Arr V, unsigned char ***flag, RBox *box)
       for (i = ibeg; i <= iend; i++)  NormalizeIons(U[k][j][i]);
     }  
 #endif  
-    err = ConsToPrim (U[k][j], v, ibeg, iend, flag[k][j]);
+    err_loc = ConsToPrim (U[k][j], v, ibeg, iend, flag[k][j]);
+    err = MAX(err, err_loc);
     for (i = ibeg; i <= iend; i++) {
       NVAR_LOOP(nv) V[nv][k][j][i] = v[i][nv];
      
@@ -96,6 +98,14 @@ void ConsToPrim3D (Data_Arr U, Data_Arr V, unsigned char ***flag, RBox *box)
     
   }}
   g_dir = current_dir;
+
+  #ifdef PARALLEL
+  int err_glob;
+  MPI_Allreduce (&err, &err_glob, 1, MPI_INT, MPI_MAX, MPI_COMM_WORLD);
+  err = err_glob;
+  #endif
+
+  return err;
 }
 /* ********************************************************************* */
 void PrimToCons3D (Data_Arr V, Data_Arr U, RBox *box)

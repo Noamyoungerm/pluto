@@ -55,7 +55,7 @@
 
 static void Particles_CR_GetElectricField(Data *, Data_Arr, Data_Arr, Grid *);
 
-#if GUIDING_CENTER == NO
+#if PARTICLES_CR_GC == NO
 /* ********************************************************************* */
 void Particles_CR_Update(Data *data, timeStep *Dts, double dt, Grid *grid)
 /*!
@@ -98,12 +98,20 @@ void Particles_CR_Update(Data *data, timeStep *Dts, double dt, Grid *grid)
 
   DEBUG_FUNC_BEG ("CR_Update");
 
+  if (g_time < Dts->particles_tstart) return;
+
 #if SHOW_TIMING
   clock_t clock_beg = clock(), clock0;
 #endif
 
   #if PARTICLES_CR_PREDICTOR > 2
     #error Predictor not allowed
+  #endif
+  #if BODY_FORCE != NO
+    #error BODY_FORCE not permitted in Paticles_CR_Update()
+  #endif
+  #if GEOMETRY != CARTESIAN
+    #error CR Particles work in CARTESIAN geometry only
   #endif
 
   Boundary (data, ALL_DIR, grid);
@@ -175,8 +183,10 @@ void Particles_CR_Update(Data *data, timeStep *Dts, double dt, Grid *grid)
   #error ! NextTimeStep(): PARTICLES_CR_NSUB cannot be = 0
   #endif
 
-  inv_dt  = 1.e-18;
-  omegaL  = 1.e-18;
+  inv_dt  = 1.e-18;  /* Used to compute inverse time step due to */
+                     /* gyration + zone crossing                 */
+  omegaL  = 1.e-18;  /* Used to compute inverse time step due to */
+                     /* gyration only                            */
   dt0     = dt;  /* Save initial dt */
   dt      = dt/(double)Dts->Nsub_particles;
   dt_half = 0.5*dt;
@@ -430,19 +440,14 @@ double v_old[3], v[3];
     /* -- H. Update spatial coordinate to obtain x^{n+1} -- */
 
       scrh  = 1.0/gamma;
-/*
-      p->coord[IDIR] += dt_half*p->speed[IDIR]*scrh;
-      p->coord[JDIR] += dt_half*p->speed[JDIR]*scrh;
-      p->coord[KDIR] += dt_half*p->speed[KDIR]*scrh;
-*/
 
-v[IDIR] = u[IDIR]*scrh;
-v[JDIR] = u[JDIR]*scrh;
-v[KDIR] = u[KDIR]*scrh;
+      v[IDIR] = u[IDIR]*scrh;
+      v[JDIR] = u[JDIR]*scrh;
+      v[KDIR] = u[KDIR]*scrh;
 
-p->coord[IDIR] += dt_half*v[IDIR];
-p->coord[JDIR] += dt_half*v[JDIR];
-p->coord[KDIR] += dt_half*v[KDIR];
+      p->coord[IDIR] += dt_half*v[IDIR];
+      p->coord[JDIR] += dt_half*v[JDIR];
+      p->coord[KDIR] += dt_half*v[KDIR];
 
     /* ---------------------------------------------------------
         I1. Compute time step restriction based on the maximum
@@ -461,28 +466,23 @@ p->coord[KDIR] += dt_half*v[KDIR];
         inv_dt = MAX(inv_dt,scrh);
 */
 
-double a = (v[dir] - v_old[dir])/dt;
-double dxmax = PARTICLES_CR_NCELL_MAX*grid->dx[dir][p->cell[dir]];
-double inv_dtnew;
-double delta;
-if (a*v[dir] >= 0.0){
-  delta     = v[dir]*v[dir] + 2.0*fabs(a)*dxmax;
-  inv_dtnew = (fabs(v[dir]) + sqrt(delta))/(2.0*dxmax);
-}else{
-  delta = v[dir]*v[dir] - 2.0*fabs(a)*dxmax;
-  if (delta >= 0.0) {
-    inv_dtnew = (fabs(v[dir]) + sqrt(delta))/(2.0*dxmax);
-  }else{
-    delta     = v[dir]*v[dir] + 2.0*fabs(a)*dxmax;
-    inv_dtnew = (-fabs(v[dir]) + sqrt(delta))/(2.0*dxmax);
-  }
-}
-//double a1 = fabs( (v[dir] - v_old[dir])/dt );
-//double a2 = fabs( PARTICLES_CR_E_MC*E[dir]/gamma );
-//double a  = MAX(a1,a2);
-//double dtnew = 2.0*dxmax/(DSIGN(a)*v[dir] + sqrt(v[dir]*v[dir] + 2.0*fabs(a)*dxmax));
-inv_dt = MAX(inv_dt, inv_dtnew);
-
+        double a = (v[dir] - v_old[dir])/dt;
+        double dxmax = PARTICLES_CR_NCELL_MAX*grid->dx[dir][p->cell[dir]];
+        double inv_dtnew;
+        double delta;
+        if (a*v[dir] >= 0.0){
+          delta     = v[dir]*v[dir] + 2.0*fabs(a)*dxmax;
+          inv_dtnew = (fabs(v[dir]) + sqrt(delta))/(2.0*dxmax);
+        }else{
+          delta = v[dir]*v[dir] - 2.0*fabs(a)*dxmax;
+          if (delta >= 0.0) {
+            inv_dtnew = (fabs(v[dir]) + sqrt(delta))/(2.0*dxmax);
+          }else{
+            delta     = v[dir]*v[dir] + 2.0*fabs(a)*dxmax;
+            inv_dtnew = (-fabs(v[dir]) + sqrt(delta))/(2.0*dxmax);
+          }
+        }
+        inv_dt = MAX(inv_dt, inv_dtnew);
       }
 
     /* ---------------------------------------------------------
@@ -498,11 +498,11 @@ inv_dt = MAX(inv_dt, inv_dtnew);
       omL   = Bperp*PARTICLES_CR_E_MC/(PARTICLES_CR_LARMOR_EPS*gamma);
 
       inv_dt = MAX(inv_dt, omL);  /* Larmor  */
-omegaL = MAX(omegaL, omL);
+      omegaL = MAX(omegaL, omL);
 
     /* -- J. Check that particle has not travelled more than one cell -- */
 
-      int checkp = Particles_CheckSingle(p, 0, grid);
+      int checkp = Particles_CheckSingle(p, grid->nghost[IDIR], grid);
       if (checkp == 0){
         printLog ("! Particles_CR_Update(): particle id %d outside domain\n",
                    p->id);
@@ -726,4 +726,4 @@ void Particles_CR_GetElectricField(Data *data, Data_Arr emfc, Data_Arr emfr,
 
 }
 
-#endif /* GUIDING_CENTER == NO */
+#endif /* PARTICLES_CR_GC == NO */

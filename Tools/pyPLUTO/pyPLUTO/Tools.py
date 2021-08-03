@@ -9,7 +9,6 @@ class Tools(object):
 		operations to the vector or scalar fields.
 		It is called after pyPLUTO.pload object is defined.
 	"""
-	
 	def find(self,condition):
 		res, = np.nonzero(np.ravel(condition))
 		return res

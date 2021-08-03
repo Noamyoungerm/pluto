@@ -9,6 +9,7 @@ var searchData=
   ['nfile',['nfile',['../struct_output.html#a4202dea8890240b3b2a69a696d08c615',1,'Output']]],
   ['nflx_5floop',['NFLX_LOOP',['../pluto_8h.html#ac4dcf43ace04e3b1f9c688f8f1baa2a5',1,'pluto.h']]],
   ['nghost',['nghost',['../struct_grid.html#ade2e682c12b84f9330fa668648e35c6a',1,'Grid']]],
+  ['nghost_5fusr',['NGHOST_USR',['../pluto_8h.html#af6c09114f14b3d4556ec9042d8813ed2',1,'pluto.h']]],
   ['nions',['NIONS',['../pluto_8h.html#ac6a37b9ae25d11bf2521d8ee85c46d79',1,'pluto.h']]],
   ['nlines',['nlines',['../parse__file_8c.html#af69ee38d2c862dbc6769fa27c5320b96',1,'parse_file.c']]],
   ['nmax_5fpoint',['NMAX_POINT',['../globals_8h.html#a55f7cb868aaaf95e4c5b862cd4d653b4',1,'NMAX_POINT():&#160;globals.h'],['../pluto_8h.html#a55f7cb868aaaf95e4c5b862cd4d653b4',1,'NMAX_POINT():&#160;globals.h']]],

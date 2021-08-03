@@ -7,18 +7,21 @@
  \authors   A. Mignone (mignone@ph.unito.it)\n
             B. Vaidya (bvaidya@unito.it)\n
   
- \date     March 30, 2018
+ \date     Mar 17, 2021
  */
 /* ///////////////////////////////////////////////////////////////////// */
 #include "pluto.h"
 
 /* ********************************************************************* */
-long Particles_CheckAll (particleNode *PHead, int mode, Grid *grid)
+long Particles_CheckAll (particleNode *PHead, int nbuf, Grid *grid)
 /*!
  *  Count and return the number of particles inside a given region
  *  of the computational domain.
- *  The region is specified using mode ( = 0,1,2),
- *  see Particles_CheckSingle()
+ *  By default (buf=0) the region is the active part of the domain (ghost
+ *  zone excluded).
+ *  This region may be enlarged by an additional buffer of nbuf zones in
+ *  the ghost zones
+ *
  *********************************************************************** */
 {
   long int count=0, check;
@@ -29,7 +32,7 @@ long Particles_CheckAll (particleNode *PHead, int mode, Grid *grid)
   while (curr != NULL) {  /* Loop on particles */
     p    = &(curr->p);
 
-    check = Particles_CheckSingle(p, mode, grid);
+    check = Particles_CheckSingle(p, nbuf, grid);
     if (check) count++;
     next = curr->next; 
     curr = next;
@@ -39,57 +42,40 @@ long Particles_CheckAll (particleNode *PHead, int mode, Grid *grid)
 }
 
 /* ********************************************************************* */
-int Particles_CheckSingle(Particle *p, int mode, Grid *grid)
+int Particles_CheckSingle(Particle *p, int nbuf, Grid *grid)
 /*!
  * Check if the particle belongs to the local processor domain
  *
  *  \param [in]   p      pointer to Particle structure.
- *  \param [in]   mode   operation mode:
- *                       mode = 0   check if particle is in active+ghost domain;
- *                       mode = 1   check if particle is in active zones;
- *                       mode = 2   check just ghost zones;
+ *  \param [in]   nbuf   extra layer of ghost zones
+ *                       nbuf = 0   check if particle is in active domain;
+ *                       nbuf = 1   check if particle is in active zones + 1
+ *                                  layer of ghost zones, and so forth;
+ *                       
  *
  * \return TRUE if the particle is inside the specified region.
  *         FALSE otherwise.
  *********************************************************************** */
 {
-  int    dir, bbeg, bend, abeg, aend, ngh;
-  int    cond0, cond1;
-  double xbeg0, xend0, xbeg1, xend1;
+  int    dir, bbeg, bend, abeg, aend;
+  int    cond  = 1;
+  double xbeg, xend;
   
-  if (mode < 0 || mode > 2){
-    printLog ("! Particles_CheckSingle(): invalid mode %d\n",mode);
-    QUIT_PLUTO(1);
-  }
-
-  cond0 = cond1 = 1;
   DIM_LOOP(dir){
-    abeg = grid->lbeg[dir];
-    aend = grid->lend[dir];
-    ngh  = grid->nghost[dir];
+    abeg = grid->lbeg[dir];  /* Active domain starting index */
+    aend = grid->lend[dir];  /* Active domain ending index */
     
-    bbeg = abeg - ngh;
-    bend = aend + ngh;
+    bbeg = abeg - nbuf;
+    bend = aend + nbuf;
 
-    xbeg0 = grid->xl[dir][bbeg];
-    xend0 = grid->xr[dir][bend];
+    xbeg = grid->xl[dir][bbeg];
+    xend = grid->xr[dir][bend];
 
-    xbeg1 = grid->xl[dir][abeg];
-    xend1 = grid->xr[dir][aend];
-    
-    cond0 *= (p->coord[dir] <= xend0);
-    cond0 *= (p->coord[dir] >  xbeg0);
-    
-    cond1 *= (p->coord[dir] <= xend1);
-    cond1 *= (p->coord[dir] >  xbeg1);
-    
+    cond *= (p->coord[dir] <= xend);
+    cond *= (p->coord[dir] >  xbeg);   
   }
-  
-  if (mode == 0) return cond0;
-  if (mode == 1) return cond1;
-  if (mode == 2) return (cond1 == FALSE ? cond0: FALSE);
 
-  return 0;    
+  return (cond != 0 ? 1:0);
 }
 
 /* ********************************************************************* */
@@ -99,8 +85,7 @@ double Particles_Interpolate(double ***V, double ***w, int *indx)
  *
  * \param [in]   V    a 3D array defined on the fluid grid->
  * \param [in]   w    a 3x3x3 array containing the weights
- * \param [in]  indx  a 3 element array giving the starting indices 
- *                    (i,j,k). 
+ * \param [in]  indx  a 3 element array giving the starting indices  (i,j,k). 
  *
  * \return The interpolated value of V at the desired location.
  *********************************************************************** */
@@ -124,6 +109,43 @@ double Particles_Interpolate(double ***V, double ***w, int *indx)
   }}}
 
   return v; 
+}
+
+/* ********************************************************************* */
+void Particles_InterpolateArr (double ****V, int nfield, double ***w,
+                               int *indx, double *v)
+/*! 
+ * Similar to ::Particles_Interpolate, but performs the interpolation on
+ * n_field directly
+ *
+ * \param [in]  V        a 4D array containing 3D arrays defined on the grid
+ * \param [in]  nfield   the number of arrays to be interpolated
+ * \param [in]  w        a 3x3x3 array containing the weights
+ * \param [in]  indx     a 3 element array giving the starting indices  (i,j,k). 
+ * \param [out] v        a nfield element array containing interpolated values
+ *
+ *********************************************************************** */
+{
+  int    i, j, k, field;
+  int    i1, j1, k1;
+  
+  i = indx[IDIR];
+  j = indx[JDIR];
+  k = indx[KDIR];
+ 
+/* ----------------------------------------------------
+    Interpolate 
+   ---------------------------------------------------- */
+  
+  for (field = 0; field < nfield; field++){
+    v[field] = 0.;
+    for (k1 = -INCLUDE_KDIR; k1 <= INCLUDE_KDIR; k1++){
+    for (j1 = -INCLUDE_JDIR; j1 <= INCLUDE_JDIR; j1++){
+    for (i1 = -INCLUDE_IDIR; i1 <= INCLUDE_IDIR; i1++){
+      v[field] += w[k1][j1][i1]*V[field][k+k1][j+j1][i+i1];
+    }}}
+  }
+  
 }
 
 /* ********************************************************************* */

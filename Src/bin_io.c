@@ -145,19 +145,19 @@ void FileReadData (void *V, size_t dsize, int sz, FILE *fl, int istag,
 /*!
  * Read a 3D grid data array V[k][j][i] from a binary file. 
  *
- * \param [in] V      pointer to a 3D array,
- *                    V[k][j][i] -->  V[i + NX1*j + NX1*NX2*k]. Must
- *                    start with index 0
- * \param [in] dsize  the size of the each buffer element   
- *                    (sizeof(double) or sizeof(float)). This
- *                    parameter is used only in serial mode.
- * \param [in] sz     the distributed array descriptor. This parameter
- *                    replaces dsize in parallel mode
- * \param [in] fl     a valid FILE pointer
- * \param [in] istag  a flag to identify cell-centered (istag = -1) or
- *                    staggered field data (istag = 0,1 or 2 for staggering 
- *                    in the x1, x2 or x3 directions) 
- * \param [in]  swap_endian  a flag for swapping endianity
+ * \param [in] V            pointer to a 3D array
+ *                          V[k][j][i] -->  V[i + NX1*j + NX1*NX2*k]. 
+ *                          Must start with index 0
+ * \param [in] dsize        the size of the each buffer element   
+ *                          (sizeof(double) or sizeof(float)). This
+ *                          parameter is used only in serial mode.
+ * \param [in] sz           the distributed array descriptor. This parameter
+ *                          replaces dsize in parallel mode
+ * \param [in] fl           a valid FILE pointer
+ * \param [in] istag        a flag to identify cell-centered (istag = -1) or
+ *                          staggered field data (istag = 0,1 or 2 for staggering 
+ *                          in the x1, x2 or x3 directions) 
+ * \param [in] swap_endian  a flag for swapping endianity
  *
  * \return This function has no return value.
  *

@@ -122,13 +122,16 @@ int main (int argc, char *argv[])
   Dts.cfl_par   = runtime.cfl_par;
   Dts.rmax_par  = runtime.rmax_par;
   Dts.Nsts      = Dts.Nrkc = Dts.Nrkl = 0;
-#if PARTICLES == PARTICLES_CR
+#if PARTICLES != NO
+  #if PARTICLES == PARTICLES_CR
   Dts.Nsub_particles  = MAX(1, -PARTICLES_CR_NSUB);
-#else
+  #else
   Dts.Nsub_particles = 1;
+  #endif
+  Dts.invDt_particles  = 1.e-38;
+  Dts.omega_particles  = 1.e-38;
+  Dts.particles_tstart = runtime.particles_tstart;
 #endif
-
-  Dts.invDt_particles = 1.0/runtime.first_dt;
 
   g_stepNumber = 0;
   
@@ -138,17 +141,14 @@ int main (int argc, char *argv[])
    ------------------------------------------------------- */
   
   if (cmd_line.restart == YES) {
-    RestartFromFile (&runtime, cmd_line.nrestart, DBL_OUTPUT, grd);
+    RestartFromFile (&data, &runtime, cmd_line.nrestart, DBL_OUTPUT, grd);
     #if PARTICLES
     if (cmd_line.prestart == YES){
       Particles_Restart(&data, cmd_line.nrestart, grd);
     }
     #endif
-    #ifdef FARGO
-    FARGO_Restart (&data, grd);
-    #endif
   }else if (cmd_line.h5restart == YES){
-    RestartFromFile (&runtime, cmd_line.nrestart, DBL_H5_OUTPUT, grd);
+    RestartFromFile (&data, &runtime, cmd_line.nrestart, DBL_H5_OUTPUT, grd);
   }else if (cmd_line.write){
     CheckForOutput   (&data, &runtime, tbeg, grd);
     CheckForAnalysis (&data, &runtime, grd);
@@ -333,11 +333,48 @@ int Integrate (Data *d, timeStep *Dts, Grid *grid)
  * 
  *********************************************************************** */
 {
-  int    idim, err = 0;
-  int    i,j,k;
+  int  idim, err = 0;
+  int  i,j,k,nv;
+  static int nretry=0;
 
 /* --------------------------------------------------------
-   0. Initialize global variables, reset coefficients
+   0. Save initial step values (only for FAILSAFE)
+   -------------------------------------------------------- */
+
+#if FAILSAFE == YES
+  static Data_Arr Ucs0, Vcs0;
+  static double ***Bss0[3], ***Ess0[3];
+
+  if (Ucs0 == NULL){
+    Ucs0 = ARRAY_4D(NX3_TOT, NX2_TOT, NX1_TOT, NVAR, double);
+    Vcs0 = ARRAY_4D(NVAR, NX3_TOT, NX2_TOT, NX1_TOT, double);
+    #ifdef STAGGERED_MHD
+    DIM_EXPAND(
+      Bss0[IDIR] = ARRAY_3D(NX3_TOT, NX2_TOT, NX1_TOT, double);  ,
+      Bss0[JDIR] = ARRAY_3D(NX3_TOT, NX2_TOT, NX1_TOT, double);  ,
+      Bss0[KDIR] = ARRAY_3D(NX3_TOT, NX2_TOT, NX1_TOT, double);
+    )
+    #endif
+    #if (PHYSICS == ResRMHD) && (DIVE_CONTROL == CONSTRAINED_TRANSPORT)
+    DIM_EXPAND(
+      Ess0[IDIR] = ARRAY_3D(NX3_TOT, NX2_TOT, NX1_TOT, double);  ,
+      Ess0[JDIR] = ARRAY_3D(NX3_TOT, NX2_TOT, NX1_TOT, double);  ,
+      Ess0[KDIR] = ARRAY_3D(NX3_TOT, NX2_TOT, NX1_TOT, double);
+    )
+    #endif
+  }
+  TOT_LOOP(k,j,i) NVAR_LOOP(nv)   Ucs0[k][j][i][nv] = d->Uc[k][j][i][nv];
+  NVAR_LOOP(nv)   TOT_LOOP(k,j,i) Vcs0[nv][k][j][i] = d->Vc[nv][k][j][i];
+  #ifdef STAGGERED_MHD
+  DIM_LOOP(nv) TOT_LOOP(k,j,i) Bss0[nv][k][j][i] = d->Vs[nv][k][j][i];
+  #if (PHYSICS == ResRMHD) && (DIVE_CONTROL == CONSTRAINED_TRANSPORT)
+  DIM_LOOP(nv) TOT_LOOP(k,j,i) Ess0[nv][k][j][i] = d->Vs[EX1s+nv][k][j][i];
+  #endif
+  #endif
+#endif
+
+/* --------------------------------------------------------
+   1. Initialize global variables, reset coefficients
    -------------------------------------------------------- */
 
   g_maxMach        = 0.0;
@@ -356,11 +393,12 @@ int Integrate (Data *d, timeStep *Dts, Grid *grid)
   #endif
 
 /* --------------------------------------------------------
-   1. Integrate particles when t >= tfreeze
+   2. Integrate particles when t >= tfreeze
    -------------------------------------------------------- */
 
 #if PARTICLES
   if (g_time >= RuntimeGet()->tfreeze) {
+    Dts->invDt_hyp = MAX(Dts->invDt_hyp, 1.e-38); /* Avoid division by zero */
     #if PARTICLES == PARTICLES_CR
     Particles_CR_Update (d, Dts, g_dt, grid);
     #elif PARTICLES == PARTICLES_DUST
@@ -385,7 +423,7 @@ int Integrate (Data *d, timeStep *Dts, Grid *grid)
 #endif
 
 /* --------------------------------------------------------
-   2. Initialize max propagation speed in Dedner's approach
+   3. Initialize max propagation speed in Dedner's approach
    -------------------------------------------------------- */
 
 #ifdef GLM_MHD  /* -- initialize glm_ch -- */
@@ -397,19 +435,85 @@ int Integrate (Data *d, timeStep *Dts, Grid *grid)
    3. Perform Strang Splitting between hydro and source
    -------------------------------------------------------- */
 
-  TOT_LOOP(k,j,i) d->flag[k][j][i] = 0;
+  if (nretry == 0) TOT_LOOP(k,j,i) d->flag[k][j][i] = 0;
 
   #ifdef FARGO
   FARGO_AverageVelocity(d, grid);
   #endif
 
   if ((g_stepNumber%2) == 0){
-    if (AdvanceStep (d, Dts, grid) != 0) return(1);
+    err = AdvanceStep (d, Dts, grid);
     SplitSource (d, g_dt, Dts, grid);
   }else{
     SplitSource (d, g_dt, Dts, grid);
-    if (AdvanceStep (d, Dts, grid) != 0) return(1);
-  }       
+    err = AdvanceStep (d, Dts, grid);
+  }
+
+/* --------------------------------------------------------
+   4. Fail-safe procedure:
+   -------------------------------------------------------- */
+
+#if FAILSAFE == YES
+  if (err == 0){  /* Step succeeded */
+    nretry = 0;
+  }
+
+  if (err > 0) {
+    int invalid_zones=0;
+    if (nretry >= 1){
+      printLog ("! Integrate(): solution did not succeed [nretry = %d]\n",nretry);
+      QUIT_PLUTO(1); 
+    }
+
+    DOM_LOOP(k,j,i){
+
+      if (d->flag[k][j][i] & FLAG_NEGATIVE_DENSITY){
+        invalid_zones++;
+        printLog("> Flagging zone (%d %d %d)\n",i,j,k);
+  
+        d->flag[k][j][i] |= FLAG_HLL;
+        d->flag[k][j][i] |= FLAG_FLAT;
+        DIM_EXPAND(
+          d->flag[k][j][i+1] |= FLAG_FLAT;
+          d->flag[k][j][i-1] |= FLAG_FLAT;  ,
+          d->flag[k][j-1][i] |= FLAG_FLAT;  
+          d->flag[k][j+1][i] |= FLAG_FLAT;  ,
+          d->flag[k-1][j][i] |= FLAG_FLAT;
+          d->flag[k+1][j][i] |= FLAG_FLAT;)
+        DIM_EXPAND(
+          d->flag[k][j][i+1] |= FLAG_HLL;
+          d->flag[k][j][i-1] |= FLAG_HLL;  ,
+          d->flag[k][j-1][i] |= FLAG_HLL;  
+          d->flag[k][j+1][i] |= FLAG_HLL;  ,
+          d->flag[k-1][j][i] |= FLAG_HLL;
+          d->flag[k+1][j][i] |= FLAG_HLL;)
+
+      /* --  Unflag bit for next iteration -- */
+        d->flag[k][j][i] &= ~(FLAG_NEGATIVE_DENSITY);
+      }
+    }
+
+  /* --------------------------------------------
+     Backup solution arrays before repeating step
+     -------------------------------------------- */
+
+    TOT_LOOP(k,j,i) NVAR_LOOP(nv)   d->Uc[k][j][i][nv] = Ucs0[k][j][i][nv];
+    NVAR_LOOP(nv)   TOT_LOOP(k,j,i) d->Vc[nv][k][j][i] = Vcs0[nv][k][j][i];
+    #ifdef STAGGERED_MHD
+    DIM_LOOP(nv) TOT_LOOP(k,j,i) d->Vs[nv][k][j][i] = Bss0[nv][k][j][i];
+    #if (PHYSICS == ResRMHD) && (DIVE_CONTROL == CONSTRAINED_TRANSPORT)
+    DIM_LOOP(nv) TOT_LOOP(k,j,i) d->Vs[EX1s+nv][k][j][i] = Ess0[nv][k][j][i];
+    #endif
+    #endif
+    nretry++;
+    printLog ("> Retrying step\n");
+    Integrate (d, Dts, grid);
+  }
+#endif
+
+/* --------------------------------------------------------
+   5. Half step for GLM_Source
+   -------------------------------------------------------- */
 
 #ifdef GLM_MHD  /* -- GLM source for dt/2 -- */
   GLM_Source (d, 0.5*g_dt, grid);
@@ -596,7 +700,9 @@ double NextTimeStep (timeStep *Dts, Runtime *runtime, Grid *grid)
     print ("! %s [dt(adv)       = cfl x %10.4e]\n",str, 1.0/Dts->invDt_hyp);
     print ("! %s [dt(par)       = cfl x %10.4e]\n",str, 1.0/(2.0*Dts->invDt_par));
     print ("! %s [dt(cool)      =       %10.4e]\n",str, Dts->dt_cool);
+    #if PARTICLES != NO
     print ("! %s [dt(particles) =       %10.4e]\n",str, 1.0/Dts->invDt_particles);
+    #endif
     print ("! Cannot continue.\n");
     QUIT_PLUTO(1);
   }

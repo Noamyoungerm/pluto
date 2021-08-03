@@ -145,7 +145,7 @@ void CT_Update(const Data *d, Data_Arr Rs, double dt, Grid *grid)
   for (j = emf->jbeg               ; j <= emf->jend; j++){
   for (i = emf->ibeg + INCLUDE_IDIR; i <= emf->iend; i++){
 
-    Ax2 = grid->A[JDIR][k][j][i];
+  /*  Ax2 = grid->A[JDIR][k][j][i];  */
      
     #if GEOMETRY == CARTESIAN
 
@@ -252,7 +252,7 @@ void CT_Update(const Data *d, Data_Arr Rs, double dt, Grid *grid)
   DIM_EXPAND(double ***Ex1s = d->Vs[EX1s];  ,
              double ***Ex2s = d->Vs[EX2s];  ,
              double ***Ex3s = d->Vs[EX3s];)
-  static char *flag;
+  static uint16_t *flag;
   static double *q_DL, *q_DR;
   static double ***q_D;
   
@@ -260,7 +260,7 @@ void CT_Update(const Data *d, Data_Arr Rs, double dt, Grid *grid)
     q_D  = ARRAY_3D(NX3_TOT, NX2_TOT, NX1_TOT, double);
     q_DL = ARRAY_1D(NMAX_POINT, double);
     q_DR = ARRAY_1D(NMAX_POINT, double);
-    flag = ARRAY_1D(NMAX_POINT, char);
+    flag = ARRAY_1D(NMAX_POINT, uint16_t);
   }
   
   TOT_LOOP(k,j,i){

@@ -18,10 +18,10 @@
 
 /* -- user-defined parameters (labels) -- */
 
-#define  PRS_IN                         0
-#define  PRS_OUT                        1
-#define  RHO_IN                         2
-#define  RHO_OUT                        3
+#define  RHO_IN                         0
+#define  PRS_IN                         1
+#define  RHO_OUT                        2
+#define  PRS_OUT                        3
 #define  BMAG                           4
 #define  THETA                          5
 #define  PHI                            6

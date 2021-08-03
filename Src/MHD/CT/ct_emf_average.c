@@ -4,7 +4,7 @@
   \brief  Collects different EMF averaging schemes.
 
   \author A. Mignone
-  \date   March 20, 2020
+  \date   Dec 09, 2020
 */  
 /* ///////////////////////////////////////////////////////////////////// */
 #include "pluto.h"
@@ -245,7 +245,7 @@ void CT_EMF_Riemann2D(const Data *d, const EMF *emf, Grid *grid)
   double *xr = grid->xr[IDIR], *yr = grid->xr[JDIR], *zr = grid->xr[KDIR];
 #endif
 
-  static char   *flag;
+  static uint16_t *flag;
   static double *vL, *vR, *bL, *bR;
   double SL, SR, aL, aR, dL, dR, phi;
 #if UPWIND_AVERAGE == YES
@@ -253,11 +253,11 @@ void CT_EMF_Riemann2D(const Data *d, const EMF *emf, Grid *grid)
 #endif
 
   if (bL == NULL) {
-    vL = ARRAY_1D(NMAX_POINT, double);
-    vR = ARRAY_1D(NMAX_POINT, double);
-    bL = ARRAY_1D(NMAX_POINT, double);
-    bR = ARRAY_1D(NMAX_POINT, double);
-    flag = ARRAY_1D(NMAX_POINT, char);
+    vL   = ARRAY_1D(NMAX_POINT, double);
+    vR   = ARRAY_1D(NMAX_POINT, double);
+    bL   = ARRAY_1D(NMAX_POINT, double);
+    bR   = ARRAY_1D(NMAX_POINT, double);
+    flag = ARRAY_1D(NMAX_POINT, uint16_t);
   }
 
 /* --------------------------------------------------------
@@ -273,10 +273,8 @@ void CT_EMF_Riemann2D(const Data *d, const EMF *emf, Grid *grid)
 
     #if INCLUDE_JDIR
     #if SHOCK_FLATTENING == MULTID
-    for (i = emf->ibeg; i <= emf->iend+1; i++){
-      if (   (d->flag[k][j][i]   & FLAG_MINMOD)
-          || (d->flag[k][j+1][i] & FLAG_MINMOD) ) flag[i] |= FLAG_MINMOD;
-      else flag[i] = 0;
+    for (i = emf->ibeg; i <= emf->iend+1; i++){   /* Interface flag */
+      flag[i] = d->flag[k][j][i] | d->flag[k][j+1][i];
     }
     #endif
     ArrayReconstruct (emf->ezj, flag, i, j, k, IDIR, vL, vR, recV, grid); /* -vx */
@@ -322,10 +320,8 @@ void CT_EMF_Riemann2D(const Data *d, const EMF *emf, Grid *grid)
 
     #if INCLUDE_KDIR
     #if SHOCK_FLATTENING == MULTID
-    for (i = emf->ibeg; i <= emf->iend+1; i++){
-      if (   (d->flag[k][j][i]   & FLAG_MINMOD)
-          || (d->flag[k+1][j][i] & FLAG_MINMOD) ) flag[i] |= FLAG_MINMOD;
-      else flag[i] = 0;
+    for (i = emf->ibeg; i <= emf->iend+1; i++){   /* Interface flag */
+      flag[i] = d->flag[k][j][i] | d->flag[k+1][j][i];
     }
     #endif
     ArrayReconstruct (emf->eyk, flag, i, j, k, IDIR, vL, vR, recV, grid); /* +vx */
@@ -383,10 +379,8 @@ void CT_EMF_Riemann2D(const Data *d, const EMF *emf, Grid *grid)
   
     #if INCLUDE_KDIR
     #if SHOCK_FLATTENING == MULTID
-    for (j = emf->jbeg; j <= emf->jend+1; j++){
-      if (   (d->flag[k][j][i]   & FLAG_MINMOD)
-          || (d->flag[k+1][j][i] & FLAG_MINMOD) ) flag[j] |= FLAG_MINMOD;
-      else flag[j] = 0;
+    for (j = emf->jbeg; j <= emf->jend+1; j++){   /* Interface flag */
+      flag[j] = d->flag[k][j][i] | d->flag[k+1][j][i];
     }
     #endif
     ArrayReconstruct (emf->exk, flag, i, j, k, JDIR, vL, vR, recV, grid);  /* - vy */
@@ -431,10 +425,8 @@ void CT_EMF_Riemann2D(const Data *d, const EMF *emf, Grid *grid)
     
     #if INCLUDE_IDIR
     #if SHOCK_FLATTENING == MULTID
-    for (j = emf->jbeg; j <= emf->jend+1; j++){
-      if (   (d->flag[k][j][i+1]   & FLAG_MINMOD)
-          || (d->flag[k][j][i] & FLAG_MINMOD) ) flag[j] |= FLAG_MINMOD;
-      else flag[j] = 0;
+    for (j = emf->jbeg; j <= emf->jend+1; j++){   /* Interface flag */
+      flag[j] = d->flag[k][j][i+1] | d->flag[k][j][i];
     }
     #endif
     ArrayReconstruct (emf->ezi, flag, i, j, k, JDIR, vL, vR, recV, grid);  /* + vy */
@@ -494,10 +486,8 @@ void CT_EMF_Riemann2D(const Data *d, const EMF *emf, Grid *grid)
 
     #if INCLUDE_IDIR
     #if SHOCK_FLATTENING == MULTID
-    for (k = emf->kbeg; k <= emf->kend+1; k++){ 
-      if (   (d->flag[k][j][i]   & FLAG_MINMOD)
-          || (d->flag[k][j][i+1] & FLAG_MINMOD) ) flag[k] |= FLAG_MINMOD;
-      else flag[k] = 0;
+    for (k = emf->kbeg; k <= emf->kend+1; k++){    /* Interface flag */
+      flag[k] = d->flag[k][j][i] | d->flag[k][j][i+1];
     }
     #endif
     ArrayReconstruct (emf->eyi, flag, i, j, k, KDIR, vL, vR, recV, grid);  /* - vz */
@@ -542,10 +532,8 @@ void CT_EMF_Riemann2D(const Data *d, const EMF *emf, Grid *grid)
 
     #if INCLUDE_JDIR
     #if SHOCK_FLATTENING == MULTID
-    for (k = emf->kbeg; k <= emf->kend+1; k++){ 
-      if (   (d->flag[k][j][i]   & FLAG_MINMOD)
-          || (d->flag[k][j+1][i] & FLAG_MINMOD) ) flag[k] |= FLAG_MINMOD;
-      else flag[k] = 0;
+    for (k = emf->kbeg; k <= emf->kend+1; k++){    /* Interface flag */
+      flag[k] = d->flag[k][j][i] | d->flag[k][j+1][i];
     }
     #endif
     ArrayReconstruct (emf->exj, flag, i, j, k, KDIR, vL, vR, recV, grid);   /* + vz */
@@ -618,7 +606,7 @@ void CT_EMF_Flux(const Data *d, const EMF *emf, Grid *grid)
              double ***Bx2s = d->Vs[BX2s];  ,
              double ***Bx3s = d->Vs[BX3s];)
 
-  static char *flag;
+  static uint16_t *flag;
   static double *eL, *eR, *dL, *dR;
 
   if (eL == NULL) {
@@ -626,7 +614,7 @@ void CT_EMF_Flux(const Data *d, const EMF *emf, Grid *grid)
     eR = ARRAY_1D(NMAX_POINT, double);
     dL = ARRAY_1D(NMAX_POINT, double);
     dR = ARRAY_1D(NMAX_POINT, double);
-    flag = ARRAY_1D(NMAX_POINT, char);
+    flag = ARRAY_1D(NMAX_POINT, uint16_t);
   }
 
 /* --------------------------------------------------------
@@ -642,10 +630,8 @@ void CT_EMF_Flux(const Data *d, const EMF *emf, Grid *grid)
 
     #if INCLUDE_JDIR
     #if SHOCK_FLATTENING == MULTID
-    for (i = emf->ibeg; i <= emf->iend+1; i++){
-      if (   (d->flag[k][j][i]   & FLAG_MINMOD)
-          || (d->flag[k][j+1][i] & FLAG_MINMOD) ) flag[i] |= FLAG_MINMOD;
-      else flag[i] = 0;
+    for (i = emf->ibeg; i <= emf->iend+1; i++){   /* Interface flag */
+      flag[i] = d->flag[k][j][i] | d->flag[k][j+1][i];
     }
     #endif
     ArrayReconstruct (emf->ezj,     flag, i, j, k, IDIR, eL, eR, recE, grid);
@@ -657,10 +643,8 @@ void CT_EMF_Flux(const Data *d, const EMF *emf, Grid *grid)
 
     #if INCLUDE_KDIR
     #if SHOCK_FLATTENING == MULTID
-    for (i = emf->ibeg; i <= emf->iend+1; i++){
-      if (   (d->flag[k][j][i]   & FLAG_MINMOD)
-          || (d->flag[k+1][j][i] & FLAG_MINMOD) ) flag[i] |= FLAG_MINMOD;
-      else flag[i] = 0;
+    for (i = emf->ibeg; i <= emf->iend+1; i++){   /* Interface flag */
+      flag[i] = d->flag[k][j][i] | d->flag[k+1][j][i];
     }
     #endif
     ArrayReconstruct (emf->eyk,     flag, i, j, k, IDIR, eL, eR, recE, grid);
@@ -686,10 +670,8 @@ void CT_EMF_Flux(const Data *d, const EMF *emf, Grid *grid)
 
     #if INCLUDE_KDIR
     #if SHOCK_FLATTENING == MULTID
-    for (j = emf->jbeg; j <= emf->jend+1; j++){
-      if (   (d->flag[k][j][i]   & FLAG_MINMOD)
-          || (d->flag[k+1][j][i] & FLAG_MINMOD) ) flag[j] |= FLAG_MINMOD;
-      else flag[j] = 0;
+    for (j = emf->jbeg; j <= emf->jend+1; j++){   /* Interface flag */
+      flag[j] = d->flag[k][j][i] | d->flag[k+1][j][i];
     }
     #endif
     ArrayReconstruct (emf->exk,     flag, i, j, k, JDIR, eL, eR, recE, grid);
@@ -701,10 +683,8 @@ void CT_EMF_Flux(const Data *d, const EMF *emf, Grid *grid)
 
     #if INCLUDE_IDIR
     #if SHOCK_FLATTENING == MULTID
-    for (j = emf->jbeg; j <= emf->jend+1; j++){
-      if (   (d->flag[k][j][i+1]   & FLAG_MINMOD)
-          || (d->flag[k][j][i] & FLAG_MINMOD) ) flag[j] |= FLAG_MINMOD;
-      else flag[j] = 0;
+    for (j = emf->jbeg; j <= emf->jend+1; j++){   /* Interface flag */
+      flag[j] = d->flag[k][j][i+1] | d->flag[k][j][i];
     }
     #endif
     ArrayReconstruct (emf->ezi,     flag, i, j, k, JDIR, eL, eR, recE, grid);
@@ -730,10 +710,8 @@ void CT_EMF_Flux(const Data *d, const EMF *emf, Grid *grid)
 
     #if INCLUDE_IDIR
     #if SHOCK_FLATTENING == MULTID
-    for (k = emf->kbeg; k <= emf->kend+1; k++){ 
-      if (   (d->flag[k][j][i]   & FLAG_MINMOD)
-          || (d->flag[k][j][i+1] & FLAG_MINMOD) ) flag[k] |= FLAG_MINMOD;
-      else flag[k] = 0;
+    for (k = emf->kbeg; k <= emf->kend+1; k++){    /* Interface flag */
+      flag[k] = d->flag[k][j][i] | d->flag[k][j][i+1];
     }
     #endif
     ArrayReconstruct (emf->eyi,     flag, i, j, k, KDIR, eL, eR, recE, grid);
@@ -745,10 +723,8 @@ void CT_EMF_Flux(const Data *d, const EMF *emf, Grid *grid)
 
     #if INCLUDE_JDIR
     #if SHOCK_FLATTENING == MULTID
-    for (k = emf->kbeg; k <= emf->kend+1; k++){ 
-      if (   (d->flag[k][j][i]   & FLAG_MINMOD)
-          || (d->flag[k][j+1][i] & FLAG_MINMOD) ) flag[k] |= FLAG_MINMOD;
-      else flag[k] = 0;
+    for (k = emf->kbeg; k <= emf->kend+1; k++){    /* Interface flag */
+      flag[k] = d->flag[k][j][i] | d->flag[k][j+1][i];
     }
     #endif
     ArrayReconstruct (emf->exj,     flag, i, j, k, KDIR, eL, eR, recE, grid);

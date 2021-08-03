@@ -46,7 +46,7 @@
   http://www.vtk.org/VTK/img/file-formats.pdf
 
   \author A. Mignone (mignone@to.infn.it)
-  \date   Aug 20, 2020
+  \date   Jun n11, 2021
 */
 /* ///////////////////////////////////////////////////////////////////// */
 #include "pluto.h"
@@ -81,7 +81,7 @@
          AL_Write_header (arr, nelem, MPI_DOUBLE, SZ_Float_Vect);
 #else
  #define VTK_HEADER_WRITE_STRING(header) \
-         fprintf (fvtk,header);
+         fprintf (fvtk, "%s", header);
  #define VTK_HEADER_WRITE_FLTARR(arr,nelem) \
          fwrite(arr, sizeof(float), nelem, fvtk);
  #define VTK_HEADER_WRITE_DBLARR(arr,nelem) \

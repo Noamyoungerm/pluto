@@ -92,7 +92,7 @@
      the mean molecular weight is computed from the mass fractions assuming
      a fully ionized gas:
      \f[
-        \mu = \frac{A_H + A_{He}f_{He} + A_Zf_Z}{2  + f_{He} + f_Z(1 + A_Z/2)}
+        \mu = \frac{A_H + A_{He}f_{He} + A_Zf_Z}{2  + 3f_{He} + f_Z(1 + A_Z/2)}
      \f]
 
 
@@ -105,9 +105,10 @@
         Tesileanu, Mignone \& Massaglia, A\&A (2008) 488, 429
 
   \authors A. Mignone (mignone@to.infn.it)\n
+           O. Tesileanu
            B. Vaidya  
 
-  \date   Apr 05, 2019
+  \date   Jun 02, 2021
 */
 /* ///////////////////////////////////////////////////////////////////// */
 #include "pluto.h"
@@ -132,12 +133,12 @@ double MeanMolecularWeight(double *v)
 #if COOLING == NO
   
   mu =  (CONST_AH + FRAC_He*CONST_AHe + FRAC_Z*CONST_AZ) /
-        (2.0 + FRAC_He + FRAC_Z*(1.0 + CONST_AZ*0.5));
+        (2.0 + 3.0*FRAC_He + FRAC_Z*(1.0 + CONST_AZ*0.5));
     
 #elif COOLING == TABULATED
 
   mu =  (CONST_AH + FRAC_He*CONST_AHe + FRAC_Z*CONST_AZ) /
-        (2.0 + FRAC_He + FRAC_Z*(1.0 + CONST_AZ*0.5));
+        (2.0 + 3.0*FRAC_He + FRAC_Z*(1.0 + CONST_AZ*0.5));
 
 #elif COOLING == SNEq
 /* -- Simple check. sum must be 1 -- 

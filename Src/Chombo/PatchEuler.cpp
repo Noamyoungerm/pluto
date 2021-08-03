@@ -10,7 +10,7 @@ void PatchPluto::advanceStep(FArrayBox&       a_U,
                              FArrayBox&       a_Utmp,
                              const FArrayBox& a_dV,
                              FArrayBox&       split_tags,
-                             BaseFab<unsigned char>& a_Flags,
+                             BaseFab<uint16_t>& a_Flags,
                              FluxBox&         a_F,
                              timeStep        *Dts,
                              const Box&       UBox, 
@@ -92,7 +92,7 @@ void PatchPluto::advanceStep(FArrayBox&       a_U,
 // 1b. Set flag & Riemann solver
 // ----------------------------------------------------
 
-  d.flag = ArrayCharMap(NX3_TOT, NX2_TOT, NX1_TOT,a_Flags.dataPtr(0));
+  d.flag = ArrayUint16_tMap(NX3_TOT, NX2_TOT, NX1_TOT,a_Flags.dataPtr(0));
   if (g_intStage == 1) TOT_LOOP(k,j,i) d.flag[k][j][i] = 0;
   
 #ifdef SKIP_SPLIT_CELLS
@@ -276,5 +276,5 @@ void PatchPluto::advanceStep(FArrayBox&       a_U,
   FreeArrayBoxMap (splitcells, KBEG, KEND, JBEG, JEND, IBEG, IEND);
 #endif
  
-  FreeArrayCharMap(d.flag);
+  FreeArrayUint16_tMap(d.flag);
 }

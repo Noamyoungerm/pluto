@@ -16,7 +16,7 @@
       else                       --> p = p(E)
   
   \author A. Mignone (mignone@to.infn.it)
-  \date   May 3, 2020
+  \date   Nov 27, 2020
 */
 /* ///////////////////////////////////////////////////////////////////// */
 #include "pluto.h"
@@ -94,8 +94,7 @@ void PrimToCons  (double *uprim[], double *ucons[],
 }
 
 /* ********************************************************************* */
-int ConsToPrim (double **ucons, double **uprim, int ibeg, int iend, 
-                unsigned char *flag)
+int ConsToPrim (double **ucons, double **uprim, int beg, int end, uint16_t *flag)
 /*!
  * Convert from conservative to primitive variables.
  *
@@ -115,12 +114,12 @@ int ConsToPrim (double **ucons, double **uprim, int ibeg, int iend,
  *
  *********************************************************************** */
 {
-  int     nv, i, err, ifail;
-  char    sol;
-  double  *u, *v;
+  int    nv, i, err;
+  int    ifail = 0;
+  char   sol;
+  double *u, *v;
 
-  ifail = 0;
-  for (i = ibeg; i <= iend; i++) {
+  for (i = beg; i <= end; i++) {
 
     u = ucons[i];
     v = uprim[i];
@@ -139,6 +138,7 @@ int ConsToPrim (double **ucons, double **uprim, int ibeg, int iend,
       Where (i, NULL);
       u[RHO]   = g_smallDensity;
       flag[i] |= FLAG_CONS2PRIM_FAIL;
+      flag[i] |= FLAG_NEGATIVE_DENSITY;
       ifail    = 1;
     }
     
@@ -150,7 +150,7 @@ int ConsToPrim (double **ucons, double **uprim, int ibeg, int iend,
       )
       u[ENR]   = RADIATION_MIN_ERAD;
       flag[i] |= FLAG_CONS2PRIM_FAIL;
-      ifail    = 1;
+//      ifail    = 1;
     }
     #endif
 
@@ -207,7 +207,7 @@ int ConsToPrim (double **ucons, double **uprim, int ibeg, int iend,
     /* -- Pressure has changed, redefine total energy & entropy -- */
       
       flag[i] |= FLAG_CONS2PRIM_FAIL;
-      ifail    = 1;
+//      ifail    = 1;
     } /* end if pressure_fix */
 
   /* --------------------------------------------

@@ -132,7 +132,7 @@ public:
                            FArrayBox&       a_Utmp,
                            const FArrayBox& a_dV,
                            FArrayBox&       a_split_tags,
-                           BaseFab<unsigned char>&   a_Flags,
+                           BaseFab<uint16_t>&   a_Flags,
                            FluxBox&         a_F,
                            timeStep        *Dts,
                            const Box&       a_box,

@@ -6,7 +6,7 @@
   Contains variable names and prototypes for the RHD module
 
   \author A. Mignone (mignone@to.infn.it)
-  \date   June 27, 2019
+  \date   Dec 02, 2020
 */
 /* ///////////////////////////////////////////////////////////////////// */
 
@@ -111,7 +111,7 @@ typedef struct Map_param_{
                  Function prototype
    ----------------------------------------------------- */
 
-int  ConsToPrim   (double **, double **, int, int, unsigned char *);
+int  ConsToPrim   (double **, double **, int, int, uint16_t *);
 void ConvertTo4vel (double **, int, int);
 void ConvertTo3vel (double **, int, int);
 

@@ -70,12 +70,12 @@
  
   \authors A. Mignone (mignone@ph.unito.it)\n
            P. Tzeferacos (petros.tzeferacos@ph.unito.it)
-  \date   Oct 14, 2018
+  \date    Mar 18, 2021
 */
 /* ///////////////////////////////////////////////////////////////////// */
 #include "pluto.h"
 
-#if (PHYSICS == MHD || PHYSICS == RMHD) && (UPDATE_VECTOR_POTENTIAL == YES)
+#if (PHYSICS == MHD || PHYSICS == RMHD || PHYSICS == ResRMHD) && (UPDATE_VECTOR_POTENTIAL == YES)
 /* ********************************************************************* */
 void VectorPotentialUpdate (const Data *d, const void *vp, 
                             const Sweep *sweep, const Grid *grid)

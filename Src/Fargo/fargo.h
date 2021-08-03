@@ -31,7 +31,7 @@
 
 /*! Used to write total/residual velocity */
 #ifndef FARGO_OUTPUT_VTOT
-  #define FARGO_OUTPUT_VTOT    YES
+  #define FARGO_OUTPUT_VTOT    NO
 #endif
 
 #define  FARGO_W  (NVAR+4)  /* 1,2,3 already taken by vec. potential */
@@ -85,14 +85,17 @@
 #endif
  
 void     FARGO_AverageVelocity(const Data *, Grid *);
-void     FARGO_ComputeTotalVelocity(const Data *, double ***, Grid *);
+void     FARGO_ComputeResidualVelocity(const Data *, double ***, Grid *);
+void     FARGO_ComputeTotalVelocity   (const Data *, double ***, Grid *);
 void     FARGO_Initialize(void);
-void     FARGO_Restart(const Data *, Grid *);
-
+void     FARGO_RestartOld(const Data *, Grid *);
+void     FARGO_Restart(const Data *, char *, int, int, Grid *);
 void     FARGO_ShiftSolution(Data_Arr, Data_Arr, Grid *);
 #if PARTICLES
 void     FARGO_ShiftParticles(Data *, Grid *, double);
 #endif
 void     FARGO_Source(Data_Arr, Data_Arr, double, Grid *);
 double **FARGO_Velocity(void);
+void     FARGO_Write(const Data *, char *, int, Grid *);
+
 

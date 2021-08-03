@@ -6,7 +6,7 @@
   Set labels, indexes and basic prototyping for the radiation module.
 
   \authors J. D. Melon Fuksman (fuksman@mpia.de)
-  \date    Dec 12, 2019
+  \date    Dec 02, 2020
 */
 /* ///////////////////////////////////////////////////////////////////// */
 
@@ -106,7 +106,7 @@
 typedef struct RAD_DATA{
  double dt;           /**< Time step of the implicit step. */
  int pos;          /**< Position where the implicit step is being performed. */
- unsigned char * flag;/**< Array of flags used to tag zones where convertion
+ uint16_t * flag;/**< Array of flags used to tag zones where convertion
                       failed or the HLLC solver needs to be replaced by HLL. */
 
  double ** pv;        /**< Array of primitive fields. */
@@ -150,7 +150,7 @@ void MaxRadSpeed (double **, double *, double *, int, int);
 double LimitRadWaveVelocity (double **, double **, Grid *, int);
 
 void LimitRadFlux(double *);
-void Rad_Speed (double **, double **, Grid *, unsigned char *,
+void Rad_Speed (double **, double **, Grid *, uint16_t *,
                 double *, double *, int, int);
 
 double EddTensor (double *, int , int);
@@ -168,10 +168,8 @@ void RadNewtonMinusF(Rad_data *, double *, double *);
 void RadNewtonJacobian (double *, double *, double **, Rad_data *);
 
 double RadErr (double *, double *, Rad_data *);
-void RadStep (double **, double **, double **, int, int, 
-              unsigned char *, double);
-void RadStep3D (Data_Arr, Data_Arr, Data_Arr,
-                unsigned char ***, RBox *, double);
+void RadStep (double **, double **, double **, int, int,  uint16_t *, double);
+void RadStep3D (Data_Arr, Data_Arr, Data_Arr, uint16_t ***, RBox *, double);
 
 Riemann_Solver *Rad_SetSolver (const char *);
 

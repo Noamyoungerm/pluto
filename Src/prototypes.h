@@ -13,8 +13,8 @@ char  ****Array4D (int, int, int, int, size_t);
 char  ***ArrayBox(long int, long int, long int, long int, long int, long int, size_t);
 double ***ArrayBoxMap (int, int, int, int, int, int, double *);
 double ***ArrayMap (int, int, int, double *);
-unsigned char ***ArrayCharMap (int, int, int, unsigned char *);
-void   ArrayReconstruct(double ***, char *, int, int, int, int,
+uint16_t ***ArrayUint16_tMap (int, int, int, uint16_t *);
+void   ArrayReconstruct(double ***, uint16_t *, int, int, int, int,
                         double *, double *, int, Grid *);
 
 void ShowMemoryInfo();
@@ -32,7 +32,8 @@ int    CheckNaN   (double **, int, int, const char *);
 
 void   ComputeUserVar (const Data *, Grid *);
 float  ***Convert_dbl2flt (double ***, double, int);
-void   ConsToPrim3D(Data_Arr, Data_Arr, unsigned char ***, RBox *);
+int    ConsToPrimLoc (double *, double *, uint16_t *);
+int    ConsToPrim3D(Data_Arr, Data_Arr, uint16_t ***, RBox *);
 void   CreateImage (char *);
 void   ComputeEntropy (const Data *, Grid *);
 
@@ -55,7 +56,7 @@ void  FreeArray4D (void ****);
 void  FreeArrayBox(double ***, long, long, long);
 void  FreeArrayBoxMap (double ***, int, int, int, int, int, int);
 void  FreeArrayMap (double ***);
-void  FreeArrayCharMap(unsigned char ***);
+void  FreeArrayUint16_tMap(uint16_t ***);
 #ifdef FINITE_DIFFERENCE 
  Riemann_Solver FD_Flux;
  void FD_GetMaxEigenvalues (const Data *d, Sweep *sweep, Grid *grid);
@@ -129,10 +130,14 @@ char  *ParamFileGet     (const char *, int );
 int    ParamExist       (const char *);
 int    ParamFileHasBoth (const char *, const char *);
 void   PeriodicBoundary (double ***, RBox *, int);
+void   PointValue (Data *, Data_Arr, Data_Arr, Grid *);
+
 void   PolarAxisBoundary(const Data *, RBox *, int);
 
 void   PrimToChar (double **, double *, double *); 
 void   PrimToCons3D(Data_Arr, Data_Arr, RBox *);
+void   PrimToConsLoc (double *vprim, double *ucons);
+
 void   PrintColumnLegend(char *legend[], int, FILE *);
 
 void   RBoxCopy (RBox *, Data_Arr, Data_Arr, int, char);
@@ -143,7 +148,7 @@ void   RBoxShow(RBox *);
 void   ReadHDF5 (Output *output, Grid *grid);
 void   ReflectiveBoundary(double ***, int, int, RBox *, int);
 void   ResetState (const Data *, Sweep *, Grid *);
-void   RestartFromFile (Runtime *, int, int, Grid *);
+void   RestartFromFile (const Data *, Runtime *, int, int, Grid *);
 void   RestartDump     (Runtime *);
 void   RestartGet      (Runtime *, int, int, int);
 

@@ -13,7 +13,7 @@
 
 #if RADIATION
 /* ********************************************************************* */
-void Rad_Speed (double **vL, double **vR, Grid *grid, unsigned char *flag,
+void Rad_Speed (double **vL, double **vR, Grid *grid, uint16_t *flag,
                 double *SrL, double *SrR, int beg, int end)
 /*!
  * Compute leftmost (SL) and rightmost (SR) speed for the Riemann fan.
@@ -48,7 +48,7 @@ void Rad_Speed (double **vL, double **vR, Grid *grid, unsigned char *flag,
   MaxRadSpeed (vR, sr_min, sr_max, beg, end);
 
   for (i = beg; i <= end; i++) {
-	#if RADIATION_DIFF_LIMITING
+    #if RADIATION_DIFF_LIMITING
     /*-- Additional limiting on the radiation wave velocities for optically
          thick flows (similar to Sadowski et al., MNRAS 429, 3533–3550 (2013)) --*/
     vLim = LimitRadWaveVelocity(vL,vR,grid,i);
@@ -61,8 +61,7 @@ void Rad_Speed (double **vL, double **vR, Grid *grid, unsigned char *flag,
 	#else
     SrL[i] = MIN(sl_min[i], sr_min[i]);
     SrR[i] = MAX(sl_max[i], sr_max[i]);
-	#endif
-
+    #endif
   }
 
 }

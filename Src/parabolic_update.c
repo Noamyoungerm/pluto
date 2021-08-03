@@ -136,7 +136,7 @@ void ParabolicUpdate(const Data *d, Data_Arr dU, RBox *domBox, double **aflux,
 {
   int    i,j,k,nv;
   int    beg_dir, end_dir;
-  static unsigned char ***flag; 
+  static uint16_t ***flag; 
   double invDt_par, *u;
   static double ****rhs;
   

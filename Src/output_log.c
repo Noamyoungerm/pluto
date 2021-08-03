@@ -91,17 +91,20 @@ void Particles_Log (Data *data, timeStep *Dts, Grid *grid)
   while(CurNode != NULL){
     pp    = &(CurNode->p);
     #if PARTICLES == PARTICLES_CR
-    #if GUIDING_CENTER == NO
+
+    #if PARTICLES_CR_GC == NO
     u2    = DOT_PRODUCT(pp->speed, pp->speed);
     gamma = sqrt(1.0 + u2/c2);
     kin  += u2/(gamma + 1.0);
     #else
-    u2    = pp->speed[IDIR]*pp->speed[IDIR];  /* This is only parallel u */
-    gamma = sqrt(1.0 + u2/c2);
-    kin  += u2/(gamma + 1.0);
-    #endif  /* GUIDING_CENTER == NO */
+    gamma = pp->speed[JDIR];
+    kin   += c2*(gamma - 1.);
+    #endif  /* PARTICLES_CR_GC == NO */
+
     #else  /* Any other particle type */
+
     kin  += 0.5*DOT_PRODUCT(pp->speed, pp->speed);
+
     #endif /* PARTICLES == PARTICLES_CR */
 
     #if PARTICLES_LP_SPECTRA == YES
@@ -137,6 +140,12 @@ void Particles_Log (Data *data, timeStep *Dts, Grid *grid)
 /* -- printLog both local and global number of particles -- */
   print ("%s [Nparticles/tot: %ld / %ld; Nsub = %d; <Ek> = %10.4e]\n",
            IndentString(), p_nparticles, np_glob, Dts->Nsub_particles, kin);
+#if PARTICLES_CR_GC
+  if (data->particles_GC_InvalidCount != 0) {
+    print ("! Warning: GC conditions were not met by %d particles.\n",
+             data->particles_GC_InvalidCount);
+  }
+#endif
 
 #if PARTICLES_LP_SPECTRA == YES
   print ("%s [<SpecE_min> = %10.4e, <SpecE_max> = %10.4e]\n",

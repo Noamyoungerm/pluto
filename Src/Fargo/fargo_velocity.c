@@ -6,10 +6,12 @@
   \authors A. Mignone (mignone@to.infn.it)\n
            G. Muscianisi (g.muscianisi@cineca.it)
          
-  \date    Feb 10, 2019
+  \date    Apr 15, 2021
 */
 /* ///////////////////////////////////////////////////////////////////// */
 #include "pluto.h"
+
+#define OLD_VERSION  NO
 
 /*! Defines a 2D array containing the azimuthally-averaged velocity.
     When the average is done along the X2 direction (Cartesian and polar
@@ -45,6 +47,8 @@ void FARGO_AverageVelocity(const Data *d, Grid *grid)
 {
 #if FARGO_NSTEP_AVERAGE > 0
   int i,j,k;
+  int    *nproc      = grid->nproc;
+  int    *rank_coord = grid->rank_coord;
   double th, w;
   double *x1 = grid->x[IDIR];
   double *x2 = grid->x[JDIR];
@@ -60,10 +64,25 @@ void FARGO_AverageVelocity(const Data *d, Grid *grid)
     #ifdef PARALLEL
     double w_recv=0.0, w_sum=0.0;
     int count, coords[3], src, dst;
-    MPI_Comm cartcomm;
+    MPI_Comm cartcomm, wComm;
     MPI_Status status;
+ 
+
+  /* ------------------------------------------------------
+     0. Create new communicators for each row of procs
+        lying in the same orbital direction.
+     ------------------------------------------------------ */
+  
+#if OLD_VERSION == NO
+    #if (GEOMETRY == CARTESIAN) || (GEOMETRY == POLAR)
+    int color = rank_coord[KDIR]*nproc[IDIR] + rank_coord[IDIR];
+    #elif GEOMETRY == SPHERICAL
+    int color = rank_coord[JDIR]*nproc[IDIR] + rank_coord[IDIR];
     #endif
-     
+    MPI_Comm_split(MPI_COMM_WORLD, color, prank, &wComm);
+#endif
+    #endif
+ 
   /* ------------------------------------------------------
      1. Fill ghost zones
      ------------------------------------------------------ */
@@ -74,6 +93,7 @@ void FARGO_AverageVelocity(const Data *d, Grid *grid)
      2. get ranks of the upper and lower procs
      ------------------------------------------------------ */
 
+#if OLD_VERSION == YES
     #ifdef PARALLEL
     AL_Get_cart_comm(SZ, &cartcomm);
     for (i = 0; i < DIMENSIONS; i++) coords[i] = grid->rank_coord[i];
@@ -84,13 +104,14 @@ void FARGO_AverageVelocity(const Data *d, Grid *grid)
     coords[SDIR] -= 1;
     MPI_Cart_rank(cartcomm, coords, &src);
     #endif
+#endif
 
   /* ------------------------------------------------------
      3. Compute average orbital speed
         in CART. or POLAR geometries
      ------------------------------------------------------ */
 
-    #if GEOMETRY == CARTESIAN || GEOMETRY == POLAR
+    #if (GEOMETRY == CARTESIAN) || (GEOMETRY == POLAR)
     KTOT_LOOP(k) ITOT_LOOP(i) {
 
     /* ------------------------------------------
@@ -98,22 +119,35 @@ void FARGO_AverageVelocity(const Data *d, Grid *grid)
        ------------------------------------------ */
 
       w = 0.0;
-      JDOM_LOOP(j) w += wA[k][i] + vphi[k][j][i]; /* Sum total velocity */
-      
+      JDOM_LOOP(j) w += wA[k][i] + vphi[k][j][i];  /*  Sum total velocity  */
+
+#if OLD_VERSION == NO
+      if (grid->nproc[JDIR] > 1){
+        #ifdef PARALLEL
+        MPI_Allreduce (&w, &w_sum, 1, MPI_DOUBLE, MPI_SUM, wComm);
+        w = w_sum/(double)(grid->np_int_glob[JDIR]);
+        #endif
+      }else{
+        w = w/(double)NX2;
+      }
+#endif
+
+#if OLD_VERSION == YES
       if (grid->nproc[JDIR] > 1){
         #ifdef PARALLEL
         w_sum = w;
         for (count=1; count < grid->nproc[JDIR]; count++ ){
-          MPI_Sendrecv(&w, 1, MPI_DOUBLE, dst, 0,  &w_recv, 1,
-                              MPI_DOUBLE, src, 0, cartcomm, &status);
+          MPI_Sendrecv(&w,      1, MPI_DOUBLE, dst, 0,
+                       &w_recv, 1, MPI_DOUBLE, src, 0, cartcomm, &status);
           w      = w_recv;
           w_sum += w;
         }
         w = w_sum/(double)(grid->np_int_glob[JDIR]);
         #endif
       }else{
-         w = w/(double)NX2;
+        w = w/(double)NX2;
       }
+#endif
 
     /* ------------------------------------------
        3b. Update residual
@@ -138,6 +172,19 @@ void FARGO_AverageVelocity(const Data *d, Grid *grid)
 
       w = 0.0;
       KDOM_LOOP(k) w += wA[j][i] + vphi[k][j][i];
+
+#if OLD_VERSION == NO
+      if (grid->nproc[KDIR] > 1){
+        #ifdef PARALLEL
+        MPI_Allreduce (&w, &w_sum, 1, MPI_DOUBLE, MPI_SUM, wComm);
+        w = w_sum/(double)(grid->np_int_glob[KDIR]);
+        #endif
+      }else{
+        w = w/(double)NX3;
+      }
+#endif
+
+#if OLD_VERSION == YES
       if (grid->nproc[KDIR] > 1){
         #ifdef PARALLEL
         w_sum = w;
@@ -152,6 +199,8 @@ void FARGO_AverageVelocity(const Data *d, Grid *grid)
       }else{
          w = w/(double)NX3;
       }
+#endif
+
 
     /* ------------------------------------------
        4b. Update residual
@@ -161,7 +210,18 @@ void FARGO_AverageVelocity(const Data *d, Grid *grid)
       wA[j][i] = w;
     }
     #endif
-  } 
+
+  /* ------------------------------------------------------
+     5. Free communicator
+     ------------------------------------------------------ */
+
+    #ifdef PARALLEL
+#if OLD_VERSION == NO
+    MPI_Comm_free(&wComm);
+#endif
+    #endif
+  }
+
 #endif /* FARGO_NSTEP_AVERAGE > 0 */
 }
 
@@ -171,10 +231,11 @@ void FARGO_ComputeTotalVelocity(const Data *d, double ***vtot, Grid *grid)
  * Add the mean background contribution to the residual
  * velocity in order to obtain the total velocity.
  *
- * \param [in,out] d      pointer to PLUTO Data structure
- * \param [in,out] vtot   array where the total velocity is stored.
- *                        (can be also d->Vc[VX2])
- * \param [in]     grid   pointer to array of Grid structures
+ * \param [in]  d      pointer to PLUTO Data structure. It is assumed
+ *                     that d->Vc[VX2] contains the residual.
+ * \param [out] vtot   array where the total velocity is stored.
+ *                     (can be also d->Vc[VX2])
+ * \param [in]  grid   pointer to array of Grid structures
  *
  * \return This function has no return value.
  *********************************************************************** */
@@ -228,6 +289,7 @@ void FARGO_ComputeTotalVelocity(const Data *d, double ***vtot, Grid *grid)
     k = p->cell[KDIR];
 
     v = 0.0;
+    #if GEOMETRY == CARTESIAN || GEOMETRY == POLAR
     for (k1 = -INCLUDE_KDIR; k1 <= INCLUDE_KDIR; k1++){
     for (j1 = -INCLUDE_JDIR; j1 <= INCLUDE_JDIR; j1++){
     for (i1 = -INCLUDE_IDIR; i1 <= INCLUDE_IDIR; i1++){
@@ -235,10 +297,100 @@ void FARGO_ComputeTotalVelocity(const Data *d, double ***vtot, Grid *grid)
     }}}
 /*  v = -SB_Q*SB_OMEGA*p->coord[IDIR]; */
     p->speed[JDIR] += v;
+    #elif GEOMETRY == SPHERICAL
+    for (k1 = -INCLUDE_KDIR; k1 <= INCLUDE_KDIR; k1++){
+    for (j1 = -INCLUDE_JDIR; j1 <= INCLUDE_JDIR; j1++){
+    for (i1 = -INCLUDE_IDIR; i1 <= INCLUDE_IDIR; i1++){
+      v += wp[k1][j1][i1]*wA[j + j1][i + i1];
+    }}}
+    p->speed[KDIR] += v;
+    #endif
+
   }
+#endif  /* PARTICLES */
+}
+
+/* ********************************************************************* */
+void FARGO_ComputeResidualVelocity(const Data *d, double ***vres, Grid *grid)
+/*!
+ * Add the mean background contribution to the residual
+ * velocity in order to obtain the total velocity.
+ *
+ * \param [in]  d      pointer to PLUTO Data structure. It is assumed
+ *                     that d->Vc[VX2] contains the total vel.
+ * \param [out] vres   array where the residual velocity is stored.
+ *                     (can be also d->Vc[VX2])
+ * \param [in]  grid   pointer to array of Grid structures
+ *
+ * \return This function has no return value.
+ *********************************************************************** */
+{
+  int i,j,k;
+#if GEOMETRY == CARTESIAN
+  double ***vtot = d->Vc[VX2];
+#else
+  double ***vtot = d->Vc[iVPHI];
 #endif
 
+/* --------------------------------------------------------
+   2a. Subtract background shear velocity to the fluid
+   -------------------------------------------------------- */
+
+  TOT_LOOP(k,j,i){
+    #if GEOMETRY == CARTESIAN || GEOMETRY == POLAR
+    vres[k][j][i] = vtot[k][j][i] - wA[k][i];
+    #elif GEOMETRY == SPHERICAL
+    vres[k][j][i] = vtot[k][j][i] - wA[j][i];
+    #endif 
+  }
+
+/* --------------------------------------------------------
+   2a. Add background shear velocity to particles.
+       Note: we do not call Particles_Interpolate since
+       the array to be interpolated has only 2 dimensions
+       and not three.
+   -------------------------------------------------------- */
+
+#if PARTICLES
+  int i1,j1,k1;
+  particleNode *curNode;
+  Particle *p;
+  double v;
+  static double ***wp;
+
+  if (wp == NULL)  wp = ARRAY_BOX (-1, 1, -1, 1, -1, 1, double);
+
+  PARTICLES_LOOP(curNode, d->PHead){
+    p = &(curNode->p);
+
+  /* -- Interpolate fargo shift velocity at particle position -- */
+
+    Particles_GetWeights(p, p->cell, wp, grid);  
+    i = p->cell[IDIR];
+    j = p->cell[JDIR];
+    k = p->cell[KDIR];
+
+    v = 0.0;
+    #if GEOMETRY == CARTESIAN || GEOMETRY == POLAR
+    for (k1 = -INCLUDE_KDIR; k1 <= INCLUDE_KDIR; k1++){
+    for (j1 = -INCLUDE_JDIR; j1 <= INCLUDE_JDIR; j1++){
+    for (i1 = -INCLUDE_IDIR; i1 <= INCLUDE_IDIR; i1++){
+      v -= wp[k1][j1][i1]*wA[k + k1][i + i1];
+    }}}
+/*  v = -SB_Q*SB_OMEGA*p->coord[IDIR]; */
+    p->speed[JDIR] += v;
+    #elif GEOMETRY == SPHERICAL
+    for (k1 = -INCLUDE_KDIR; k1 <= INCLUDE_KDIR; k1++){
+    for (j1 = -INCLUDE_JDIR; j1 <= INCLUDE_JDIR; j1++){
+    for (i1 = -INCLUDE_IDIR; i1 <= INCLUDE_IDIR; i1++){
+      v -= wp[k1][j1][i1]*wA[j + j1][i + i1];
+    }}}
+    p->speed[KDIR] -= v;
+    #endif
+  }
+#endif  /* PARTICLES */
 }
+
 
 /* ********************************************************************* */
 double **FARGO_Velocity(void)
@@ -248,55 +400,4 @@ double **FARGO_Velocity(void)
  *********************************************************************** */
 {
   return wA;
-}
-/* ********************************************************************* */
-void FARGO_Restart(const Data *d, Grid *grid)
-/*!
- * Re-compute residual and average orbital speed after restarting from file.
- * Warning: this operation is not possible when the background velocity is
- *          computed dynamically and the output contains the residual.
- *          The following table summarizes the possible combination.
- *
-
-  <CENTER>
-  FARGO_NSTEP_AVERAGE | FARGO_OUTPUT_VTOT |  Restart_Possible ? 
-  --------------------|-------------------|---------------------------
-       >0             |   NO  (v')        |  No
-       >0             |   YES (v)         |  Yes (w = <v>, v' = v-w)
-       -1             |   NO  (v')        |  Yes  
-       -1             |   YES (v)         |  Yes (v' = v - w)
-  </CENTER>
-
- *********************************************************************** */
-{
-  int i,j,k;
-
-#if FARGO_NSTEP_AVERAGE > 0
-  
-  #if FARGO_OUTPUT_VTOT == NO
-  printLog ("! FARGO_Restart(): cannot compute background velocity since\n");
-  printLog ("                   data contains the residual only.\n");
-  QUIT_PLUTO(1);
-  #endif
-  
-  #if (GEOMETRY == CARTESIAN) || (GEOMETRY == POLAR) 
-  KTOT_LOOP(k) ITOT_LOOP(i) wA[k][i] = 0.0;
-  #elif GEOMETRY == SPHERICAL
-  JTOT_LOOP(j) ITOT_LOOP(i) wA[j][i] = 0.0;
-  #endif
-  
-  FARGO_AverageVelocity(d, grid);
-
-#else
-
-  #if FARGO_OUTPUT_VTOT == YES
-  #if (GEOMETRY == CARTESIAN) || (GEOMETRY == POLAR) 
-  TOT_LOOP(k,j,i) d->Vc[VX2][k][j][i] -= wA[k][i]; 
-  #elif GEOMETRY == SPHERICAL
-  TOT_LOOP(k,j,i) d->Vc[VX3][k][j][i] -= wA[j][i];
-  #endif
-  #endif
-  
-#endif
-
 }

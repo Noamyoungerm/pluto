@@ -174,7 +174,7 @@ typedef struct Grid_{
   int rank_coord[3];  /**< Parallel coordinate in a Cartesian topology. */
   int level;          /**< The current refinement level (chombo only). */
   int *ring_av_csize; /**< The chunk size when RING_AVERAGE is turned on */   
-  char fill[376];   /* useless, just to make the structure size a power of 2 */
+  char fill[344];   /* useless, just to make the structure size a power of 2 */
 } Grid;
 
 /* ********************************************************************* */
@@ -312,7 +312,7 @@ typedef struct Sweep_{
   double *SaL, *SaR, *Sc; /**< MHD alfven waves, contact wave */
   double *dL, *dR;        /**< Diffusion coefficient for EMF  */
   double *aL, *aR;        /**< Flux averaging coefficients    */
-  unsigned char *flag;
+  uint16_t *flag;
   State stateL;
   State stateR;
   State stateC;
@@ -372,6 +372,7 @@ typedef struct timeStep_{
   double cfl;       /**< Courant number for advection. */
   double cfl_par;   /**< Courant number for diffusion (STS only). */
   double rmax_par;
+  double particles_tstart; /**< A copy of runtime->particles_tstart */
   double clock_particles;
   double clock_particles_bound;
 
@@ -457,6 +458,7 @@ typedef struct Runtime_{
   double  anl_dt;          /**< Time step increment for Analysis()
                                 ( <tt> analysis (double) </tt> )*/
 
+  double particles_tstart;  /**< Time at which particles are integrated */
   int     Nparticles_glob;  /**< Total number of particles in the whole domain */
   int     Nparticles_cell;  /**< Total number of particles per cell */
     
@@ -536,8 +538,8 @@ typedef struct Data_{
   double ****J;     /**< Electric current defined as curl(B). */
   double ***Tc;     /**< Dimensionless temperature array (used for TC) */
   double ***q;      /**< Electric charge density (only for ResRMHD)    */
-  unsigned char ***flag; /**< Pointer to a 3D array setting useful integration
-                              flags that are retrieved during integration. */
+  uint16_t ***flag; /**< Pointer to a 3D array setting useful integration
+                         flags that are retrieved during integration. */
 
   /* -- Particles-related quantities -- */
 
@@ -552,7 +554,8 @@ typedef struct Data_{
   
   double ****Fdust; /**< Drag force (dust particles only)   */
   struct Particle_ **pstr;  /**< Used to convert a linked list to array (useful ?) */
-
+  int particles_GC_InvalidCount; /**< Number of particles for which GCA conditions are not fulfilled. */
+  
 /* EMF  */
   double ***Ex1; /**< cell-centered emf used in CT averaging or CR particles */
   double ***Ex2; /**< cell-centered emf used in CT averaging or CR particles */  
@@ -568,6 +571,6 @@ typedef struct Data_{
   
   void (*fluidRiemannSolver)     (const Sweep *, int, int, double *, Grid *);
   void (*radiationRiemannSolver) (const Sweep *, int, int, double *, Grid *);
-  char fill[78];  /* make the structure a power of two.  */
+  char fill[54];  /* make the structure a power of two.  */
 } Data;
 

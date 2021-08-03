@@ -14,7 +14,7 @@ this routine, refer to the IDL Online Help Navigator
 or type: <P>
 <PRE>     ? mk_html_help</PRE><P>
 at the IDL command line prompt.<P>
-<STRONG>Last modified: </STRONG>Mon Nov 16 10:27:17 2020.<P>
+<STRONG>Last modified: </STRONG>Sat Jun 26 13:26:39 2021.<P>
  
 <HR>
  
@@ -920,7 +920,7 @@ at the IDL command line prompt.<P>
    
  SYNTAX:
 
-   PARTICLES_BINARY_LOAD, fname[, /FLOAT][, /SLICE][, /SILENT], endianity, err
+   PARTICLES_BINARY_LOAD, fname[, /FLOAT][, /SILENT], endianity, err
    
  ARGUMENTS:
 
@@ -928,14 +928,9 @@ at the IDL command line prompt.<P>
 
  KEYWORDS:
 
- NOTE: The keyword /SLICE is kept as a developmental feature. 
-       It is meant for reading a float like particle file containing
-       only a subset of particles (e.g. in a given plane or region of domain).
-       This will be useful if the full particle files are very large in size 
-       (e.g. for LP) and only a portion is needed for diagnostics at higher 
-       frequency. This is meant to be implemented as a different particle
-       output format in future.
-
+    LP        Keyword to denote LP module. Needed to avoid printing Totparticles
+              nchunk values, which are not defined for other modules.s
+  
  EXAMPLES:
 
   * Example #1: Load the 10-th particles output file:
@@ -945,7 +940,7 @@ at the IDL command line prompt.<P>
 
  LAST MODIFIED:
 
-  November 11, 2020 by D. Mukherjee (dipanjan@iucaa.in)
+  Mar 08, 2021 by D. Mukherjee &amp; A. Mignone (dipanjan.mukherjee@unito.it)
 
 </PRE><P>
 <STRONG>(See particles_load.pro)</STRONG><P>
@@ -1024,7 +1019,6 @@ at the IDL command line prompt.<P>
    nout  = the output number, e.g., 0,1,2, ...
    nchunk = the particle sub-file for a given nout. e.g. nchunk=1 if particles.0001_ch00.dbl
            is to be loaded. nchunk=0 by default and may be omitted for particles.0001_ch00.dbl
-           If nchunk is not mentioned, load all files for the nout (default).
 
  KEYWORDS:
 
@@ -1049,15 +1043,15 @@ at the IDL command line prompt.<P>
   * Example #1: Load the 10-th particles output file in single precision
                 and print the x2-component of velocity of the 4-th particle:
 
-    IDL&gt; PARTICLES_LOAD,10,/FLOAT           ;-- Loads particles from all particles.0010.flt
+    IDL&gt; PARTICLES_LOAd,10,/FLOAT      ;--Loads particles from particles.0010.flt.00
     IDL&gt; PRINT,particles[4].vx2
 
-    IDL&gt; PARTICLES_LOAD,10,/FLOAT,/LP           ;-- Loads particles from all particles.0010_ch*.flt
-    IDL&gt; PARTICLES_LOAD,10,nchunk=1,/FLT,/LP    ;-- Loads particles from particles.0010_ch01.flt
+    IDL&gt; PARTICLES_LOAd,10,1,/FLOAT    ;--Loads particles from particles.0010.flt.01
+    IDL&gt; PARTICLES_LOAd,10,/FLOAT,/ALL ;--Loads particles from all particles.0010.flt.*
 
  LAST MODIFIED:
 
-  November 11, 2020 by D. Mukherjee (dipanjan@iucaa.in)
+  October 19, 2018 by D. Mukherjee (dipanjan.mukherjee@unito.it)
 
 </PRE><P>
 <STRONG>(See particles_load.pro)</STRONG><P>

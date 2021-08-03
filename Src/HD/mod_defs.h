@@ -6,7 +6,7 @@
   Contains variable names and prototypes for the HD module
 
   \author A. Mignone (mignone@to.infn.it)
-  \date   July 1, 2019
+  \date   Dec 2, 2020
 */
 /* ///////////////////////////////////////////////////////////////////// */
 
@@ -85,7 +85,7 @@ enum KWAVES {
                    Prototyping goes here          
    *********************************************************** */
 
-int  ConsToPrim   (double **, double **, int, int, unsigned char *);
+int  ConsToPrim   (double **, double **, int, int, uint16_t *);
 void Eigenvalues (double **, double *, double **, int, int);
 void PrimEigenvectors (const State *, int, int);
 void ConsEigenvectors (double *, double *, double, 
