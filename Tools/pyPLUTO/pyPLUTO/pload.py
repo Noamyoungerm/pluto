@@ -223,7 +223,7 @@ class pload(object):
 					A = array.array(dtype)
 					fmt = endian+str(n1*n2*n3)+dtype
 					nb = np.dtype(fmt).itemsize
-					A.fromstring(fp.read(nb))
+					A.frombytes(fp.read(nb))
 					if (self.Slice):
 						darr = np.zeros((n1*n2*n3))
 						indxx = np.sort([self.n3_tot*self.n2_tot*k + j*self.n2_tot + i for i in self.irange for j in self.jrange for k in self.krange])
@@ -464,7 +464,7 @@ class pload(object):
 		A = array.array(dtype)
 		fmt = endian+str(n1_tot*n2_tot*n3_tot)+dtype
 		nb = np.dtype(fmt).itemsize
-		A.fromstring(fp.read(nb))
+		A.frombytes(fp.read(nb))
 		
 		if (self.Slice):
 			darr = np.zeros((n1*n2*n3))
