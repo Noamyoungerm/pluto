@@ -6,7 +6,10 @@
 
 CC       = gcc
 CFLAGS   = -c -O3 -Wundef
+CFLAGS += -flto -march=native -ftree-vectorize -fvisibility=hidden
+#CFLAGS += -fno-trapping-math -fno-signed-zeros -fassociative-math
 LDFLAGS  = -lm
+LDFLAGS += -flto -fvisibility=hidden
 
 PARALLEL = FALSE
 USE_HDF5 = FALSE
