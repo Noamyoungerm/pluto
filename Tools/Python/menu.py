@@ -21,6 +21,20 @@ for x in sys.argv:  # avoid curses library with the --no-curses option.
 if (have_curses == 1):
   import curses, curses.textpad
 
+
+def read_input(prompt=""):
+  import time
+  for x in sys.argv:  # avoid curses library with the --no-curses option.
+    if (x == "--no-interactive"):
+      print(prompt)
+      res = sys.stdin.readline().strip()
+      print(res)
+      if len(res) == 0:
+        sys.exit(1)
+      return res
+
+  return input(prompt)
+
 #####################################################
 #
 # The class gb contains global variables and 
@@ -187,7 +201,6 @@ def Browse(entries, default=[], options=[]):
   for x in sys.argv:  # avoid curses library with the --no-curses option.
     if (x == "--no-curses"):
       return Browse_no_curses(entries, default, options)
-
 #
 # window setup will be done just once.
 # 
@@ -328,7 +341,7 @@ def CursesIsActive():
 def Print_no_curses(message, sleep, row):
 
   global xglb
-#  if (row == 1): os.system("clear")
+#  if (row == 1): os.system("")
   print(message)
   time.sleep(sleep)
 
@@ -338,9 +351,9 @@ def Prompt_no_curses (message):
 #
 ######################################################
 
-  os.system("clear")
+  os.system("")
   print(message)
-  q = raw_input()
+  q = read_input()
 
 ######################################################
 def Browse_no_curses(entries,  default, options):
@@ -350,7 +363,7 @@ def Browse_no_curses(entries,  default, options):
 
   q = "c"
   while (q != ''):
-    os.system("clear")
+    os.system("")
     print(">> ",gb.title+"\n")
     for x in entries:
       i = entries.index(x)
@@ -360,7 +373,7 @@ def Browse_no_curses(entries,  default, options):
         print(str(i).rjust(2),') ',x.ljust(28))
 
     print (" ")
-    q = raw_input(">> choice ? ")
+    q = read_input(">> choice ? ")
     if (q == ''):
       print("Enter")
     else:
@@ -376,7 +389,7 @@ def Browse_no_curses(entries,  default, options):
         opt_list += repr(i)+") "+x+"   "
     
       print("\n"+entries[q]+": ",opt_list)
-      c = raw_input(">> choice ["+default[q]+"] ? ")
+      c = read_input(">> choice ["+default[q]+"] ? ")
       try: 
         c = int(c)
       except:
@@ -393,14 +406,14 @@ def Insert_no_curses(entries, names):
 
   q = "c"
   while (q != ''):
-    os.system("clear")
+    os.system("")
     print (">> ",gb.title+"\n")
     for x in entries:
       i = entries.index(x)
       print(str(i).rjust(2),') ',names[i].ljust(28))
 
     print (" ")
-    q = raw_input(">> choice ? ")
+    q = read_input(">> choice ? ")
     if (q == ''):
       print("Enter")
     else:
@@ -409,7 +422,7 @@ def Insert_no_curses(entries, names):
       except:
         continue
 
-      newname = raw_input(">> new name ? ")
+      newname = read_input(">> new name ? ")
       names[q] = newname
 
   return

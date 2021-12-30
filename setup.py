@@ -112,6 +112,7 @@ if __name__ == "__main__":   # starts from here
       print (" --auto-update     Run the python script in background.")
       print (" --no-curses       Disable ncurses library and use a")
       print ("                   simpler text-based menu.")
+      print (" --no-interactive  Read input from stdin (use with --no-curses)")
       print (" --with-chombo     Enable support for adaptive mesh refinement.")
       print ("                   (AMR) module using the Chombo library.")
       print (" --with-fargo      Enable the FARGO-MHD module.")
@@ -144,6 +145,9 @@ if __name__ == "__main__":   # starts from here
 
     elif (x == "--with-cr_transport"): 
       print ("Enabling support for cr_transport module")
+
+    elif (x == "--no-interactive"): 
+      print ("No Interactive")
   
     else:
       print ("! Unrecognized option '",x,"'")
